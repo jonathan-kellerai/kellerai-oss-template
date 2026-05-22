@@ -41,6 +41,7 @@ This plan operationalizes `03-golden-repo-design.md`. It does not replace it —
 **Goal:** pin every tool version so two operators on two machines build byte-identical results.
 
 **Actions:**
+
 - Record exact versions: `opa` (1.14.1), `node` + `npx` (for `ajv`,
   `markdownlint-cli2`, `commitlint`), `lefthook`, `lychee`, `actionlint`,
   `gh`, `git`.
@@ -57,6 +58,7 @@ version. Exit 0 on a `scripts/check-versions.sh` that diffs live vs pinned.
 **Goal:** materialize the directory skeleton deterministically.
 
 **Actions:**
+
 - `git init` in an empty dir; default branch `main` (standard §0:28 forbids
   `master`).
 - Expand `template/` with the fixed token map: owner `jonathan-kellerai`,
@@ -77,6 +79,7 @@ present in the snapshot.
 **Goal:** every file in `data.json` exists and passes its type validator.
 
 **Actions (driven by `data.json`, not freehand):**
+
 - 13 root files: `README.md` (humans-only, "For agents" footer),
   `AGENTS.md` (≤150 lines), `CLAUDE.md` (≤80 lines, first content line
   `@AGENTS.md`), `LICENSE`, `NOTICE`, `CHANGELOG.md`, `CITATION.cff`,
@@ -103,6 +106,7 @@ unexpected files.
 **Goal:** the policy that proves conformance is itself proven and frozen.
 
 **Actions:**
+
 - Place `conformance/{conformance.rego,conformance_test.rego,data.json,README.md}`.
 - Recompute the SHA-256 of `conformance.rego`; write it to
   `data.json` `policy_integrity.expected_digest` (standard §; CLAUDE.md
@@ -121,6 +125,7 @@ All are Tier-2/Tier-3 — **no `conformance/` change**, so the frozen digest
 stays valid and Phase 3's proof is not invalidated.
 
 **Actions (per `03` migration note M1–M8):**
+
 - `agentic-gates` job in `.github/workflows/conformance.yml` — gates IC-1…IC-7.
 - `docs/adr/` with `ADR-000-template.md` + seed ADRs 001–011.
 - `docs/claude-settings.template.json` — permission allowlist template.
@@ -138,15 +143,18 @@ front-matter.
 **Goal:** prove the whole repo conformant in one command.
 
 **Actions:**
+
 - Regenerate the snapshot:
   `bash scripts/scan-repo-structure.sh --artifact-type rego-policy`.
 - Evaluate the summary rule.
 
 **PROOF (master gate):**
-```
+
+```bash
 opa eval -d conformance/ -i repo-structure.json \
   'data.kellerai.oss.conformance.summary'
 ```
+
 must return `allow: true`, `errors: 0`. Conformant ≡ zero error-severity
 violations (`conformance.rego` `allow := count(errors) == 0`).
 Run `scripts/check-sanitization.sh` — exit 0 (no leaked secrets/denylist hits).
@@ -158,6 +166,7 @@ Run `scripts/check-sanitization.sh` — exit 0 (no leaked secrets/denylist hits)
 **Goal:** publish exactly as the standard prescribes — one clean history.
 
 **Actions (standard §17, single-commit procedure):**
+
 - Verify `.gitignore`; ensure working tree is intentional.
 - One initial commit (Conventional Commits); `gh repo create` (public,
   owner `jonathan-kellerai`); push once — no force-push, no rebase.

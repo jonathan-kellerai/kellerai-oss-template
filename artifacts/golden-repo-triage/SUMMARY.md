@@ -56,12 +56,12 @@ top5_changes:
     score_ref: "02-scored-agents.md:96"
 ---
 
-# Golden-Repo Design — Summary
+## Golden-Repo Design — Summary
 
 This is a derived subset of the authoritative design document `03-golden-repo-design.md`.
 Every claim here also appears there.
 
-## Recommended design (for human readers)
+### Recommended design (for human readers)
 
 The golden repo is **`kellerai-oss-template` itself, extended** — not a new repository. It keeps its
 identity as the OPA/Rego conformance authority and bootstrap scaffold (artifact type `rego-policy`)
@@ -80,7 +80,7 @@ for D7) carry an enable recommendation in the migration note, per the user's Pha
 The migration note proposes **no change to `conformance/conformance.rego` or `conformance/data.json`**;
 the baseline was verified green (`opa check` exit 0; `opa test` 22/22 PASS).
 
-### Top 5 evidence-backed changes
+#### Top 5 evidence-backed changes
 
 | ADR | Change | Incident | Capability score |
 |-----|--------|----------|------------------|
@@ -90,7 +90,7 @@ the baseline was verified green (`opa check` exit 0; `opa test` 22/22 PASS).
 | ADR-005 | Adopt `git-workflow-tools` for D5 CI/CD | IC-6 dirty-state-commit (`01-incident-ledger.md:38`) | git-workflow-tools 98% (`02-scored-agents.md:86`) |
 | ADR-006 | Adopt `kellerai-feature-spec` for D6 governance | IC-2 phase-wiring (`01-incident-ledger.md:34`) | kellerai-feature-spec 100% (`02-scored-agents.md:96`) |
 
-## Scored-agent roster (machine section)
+### Scored-agent roster (machine section)
 
 ```yaml
 canonical_roster:

@@ -206,17 +206,18 @@ ADR-001..ADR-011 follow. Major choices: 7 domain picks + three-tier model + ADR 
 allowlist template + IC-gate placement = 11. ADR count = 11. (Exit criterion 4 satisfied.)
 
 ---
-title: "ADR-001 — Adopt thoughtbox as the D1 session-mining capability"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-001 — Adopt thoughtbox as the D1 session-mining capability
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 IC-3 session-context loss (`01-incident-ledger.md:35`) shows prior-session learnings were not
 propagated. Session mining is the capability that closes that loop.
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
@@ -224,57 +225,59 @@ propagated. Session mining is the capability that closes that loop.
 | token-triage-analyzer | BENCHED | 27 | 54% | `02-scored-agents.md:47` |
 | log-compressor-tools | BENCHED | 24 | 48% | `02-scored-agents.md:48` |
 
-## Decision
+### Decision
 
 Adopt `thoughtbox` (`session-analyst` skill) — the only ACTIVE candidate and top score
 (`02-scored-agents.md:46`).
 
-## Consequences
+### Consequences
 
 D1 gate is the agentic-gates session-context step (§4b). A real-time in-session mining gap remains
 (AI-2) — `thoughtbox` mines past sessions only.
 
 ---
-title: "ADR-002 — Adopt kellerai-repo-audit as the D2 capability standard"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-002 — Adopt kellerai-repo-audit as the D2 capability standard
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 D2 is plugin-&-capability-analysis. The top-scored candidate is a code-review tool, creating a
 conceptual conflict (XC-2). Relevant incident: IC-2 phase-wiring (`01-incident-ledger.md:34`).
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
 | keller-pr-review | ACTIVE | 50 | 100% | `02-scored-agents.md:56` |
 | kellerai-repo-audit | ACTIVE | 47 | 94% | `02-scored-agents.md:57` |
 
-## Decision
+### Decision
 
 Adopt `kellerai-repo-audit` for D2. `keller-pr-review` is repositioned as the PR-workflow gate with
 no D-number (XC-2 resolution). Reason: `kellerai-repo-audit` literally audits a repo's capability
 surface; `keller-pr-review` operates on code diffs.
 
-## Consequences
+### Consequences
 
 `kellerai-repo-audit` serves D2 and D3 (cross-domain reuse). AGENTS.md documents `keller-pr-review`
 separately as the PR-workflow gate. D2 gate per §4b.
 
 ---
-title: "ADR-003 — Adopt kellerai-repo-audit + kellerai-skill-creator for D3"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-003 — Adopt kellerai-repo-audit + kellerai-skill-creator for D3
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 D3 is repo-architecture/scaffolding. IC-1 preflight-dir (`01-incident-ledger.md:33`) is a
 scaffolding-discipline failure.
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
@@ -282,29 +285,30 @@ scaffolding-discipline failure.
 | kellerai-skill-creator | ACTIVE | 50 | 100% | `02-scored-agents.md:67` |
 | plugin-dev | ACTIVE | 41 | 82% | `02-scored-agents.md:68` |
 
-## Decision
+### Decision
 
 `kellerai-repo-audit` is the D3 primary (architecture analysis); `kellerai-skill-creator` is the
 scaffolding/component-generation companion. Both scored 100%; the tie was resolved by orchestrator
 judgment (`02-scored-agents.md:71`).
 
-## Consequences
+### Consequences
 
 D3 gate is the existing `required_file`/`required_dir` deny families
 (`conformance/conformance.rego:48-264`) — no new gate needed.
 
 ---
-title: "ADR-004 — Adopt opa-rego as D4 primary; kellerai-grc on-demand"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-004 — Adopt opa-rego as D4 primary; kellerai-grc on-demand
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 D4 is conformance-&-policy (OPA/Rego). The repo's artifact type is `rego-policy` (`AGENTS.md:11`)
 and it ships `conformance/conformance.rego`. The top-scored candidate is a broad GRC plugin (XC-1).
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
@@ -312,28 +316,29 @@ and it ships `conformance/conformance.rego`. The top-scored candidate is a broad
 | opa-rego | DISABLED | 34 | 68% | `02-scored-agents.md:77` |
 | kellerai-tdd | DISABLED | 31 | 62% | `02-scored-agents.md:78` |
 
-## Decision
+### Decision
 
 `opa-rego` is the D4 primary — exact-on-domain for a `rego-policy` repo; the 2-point gap is scoring
 noise (XC-1). `kellerai-grc` is retained, enabled on-demand for formal compliance audits.
 
-## Consequences
+### Consequences
 
 Both are DISABLED-tier → AI-1 (enable before standardizing). D4 gate is the `opa check`/`opa test`
 CI step + the `policy_integrity` deny rule (§4b).
 
 ---
-title: "ADR-005 — Adopt git-workflow-tools as the D5 CI/CD capability"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-005 — Adopt git-workflow-tools as the D5 CI/CD capability
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 IC-6 dirty-state-commit (`01-incident-ledger.md:38`) and IC-7 publication-readiness
 (`01-incident-ledger.md:39`) are both commit/publish-discipline failures D5 must close.
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
@@ -341,28 +346,29 @@ IC-6 dirty-state-commit (`01-incident-ledger.md:38`) and IC-7 publication-readin
 | beads-workflow | ACTIVE | 48 | 96% | `02-scored-agents.md:88` |
 | kellerai-orchestrator | ACTIVE | 47 | 94% | `02-scored-agents.md:89` |
 
-## Decision
+### Decision
 
 Adopt `git-workflow-tools` — top score after the Phase 2 conflict escalation
 (`02-scored-agents.md:91`); it gates every commit/push via a PreToolUse hook.
 
-## Consequences
+### Consequences
 
 D5 gate is `primary_validator_wired` + `commitlint.yml` (§4b). IC-6 uses the existing `lefthook.yml`.
 
 ---
-title: "ADR-006 — Adopt kellerai-feature-spec + thoughtbox for D6"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-006 — Adopt kellerai-feature-spec + thoughtbox for D6
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 D6 is governance-&-decision-traceability. The run's own decision-traceable mandate requires ADRs
 with citations. No incident is specific to D6; it is grounded primarily in Phase 2 scores, which is
 acceptable for a low-incident domain.
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
@@ -370,26 +376,27 @@ acceptable for a low-incident domain.
 | thoughtbox | ACTIVE | 48 | 96% | `02-scored-agents.md:97` |
 | beads-workflow | ACTIVE | 46 | 92% | `02-scored-agents.md:98` |
 
-## Decision
+### Decision
 
 `kellerai-feature-spec` is the D6 primary (phase manifest + `progress.jsonl` gate + ADR-style
 records); `thoughtbox` is the reasoning/decision-record companion.
 
-## Consequences
+### Consequences
 
 D6 gate is the ADR citation-check CI step (§4b). ADR records live in `docs/adr/` (ADR-009).
 
 ---
-title: "ADR-007 — Adopt documentation-audit + claude-md-management for D7"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-007 — Adopt documentation-audit + claude-md-management for D7
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 D7 is documentation. The top-scored candidate is DISABLED-tier.
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
@@ -397,125 +404,129 @@ D7 is documentation. The top-scored candidate is DISABLED-tier.
 | claude-md-management | ACTIVE | 43 | 86% | `02-scored-agents.md:107` |
 | human-writing | ACTIVE | 36 | 72% | `02-scored-agents.md:108` |
 
-## Decision
+### Decision
 
 `documentation-audit` is the D7 primary (machine-readable findings + diffs); `claude-md-management`
 is the ACTIVE-tier companion that operates with no enable step.
 
-## Consequences
+### Consequences
 
 `documentation-audit` is DISABLED → AI-1. D7 gate is `readme_agent_footer` + markdownlint (§4b).
 
 ---
-title: "ADR-008 — Adopt a three-tier enforcement model"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-008 — Adopt a three-tier enforcement model
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 XC-4: comprehensive enforcement for the 7 incident classes (`01-incident-ledger.md:31-39`) plus the
 7 domains conflicts with the repo's minimal-required-file philosophy, where each new required file
 (`conformance/data.json:4-18`) is a major semver bump (`AGENTS.md` semver-discipline rule).
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
 | All gates as conformance-required files/rules | n/a | n/a | n/a | rejected — cascading major bumps |
 | Three-tier model (T1 required / T2 CI / T3 convention) | n/a | n/a | n/a | XC-4, `strategic-reasoner a07f023f` |
 
-## Decision
+### Decision
 
 Adopt the three-tier model: T1 = conformance-required (no additions); T2 = CI step in an existing
 required workflow; T3 = documented AGENTS.md convention.
 
-## Consequences
+### Consequences
 
 Zero new required files; zero major semver bumps. All IC gates become steps in the existing
 `.github/workflows/conformance.yml` (ADR-011).
 
 ---
-title: "ADR-009 — Store decision records in docs/adr/"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-009 — Store decision records in docs/adr/
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 The run's decision-traceable mandate requires a documented home for ADRs. IC-3 session-context
 (`01-incident-ledger.md:35`) shows decisions were lost across sessions.
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
 | docs/adr/ directory, one file per ADR | T3 | n/a | n/a | this design |
 | ADRs inline in CHANGELOG.md | n/a | n/a | n/a | rejected — not decision-first |
 
-## Decision
+### Decision
 
 ADRs live in `docs/adr/ADR-NNN-<slug>.md` using the §10 schema; `docs/adr/ADR-000-template.md` is
 the template. TIER-3 convention — not a conformance-required directory.
 
-## Consequences
+### Consequences
 
 `docs/adr/` is a `[NEW]` directory (§2). The D6 citation-check step covers it.
 
 ---
-title: "ADR-010 — Ship the permission allowlist as docs/claude-settings.template.json"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-010 — Ship the permission allowlist as docs/claude-settings.template.json
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 IC-4 permission-allowlist (`01-incident-ledger.md:36`): 104 permission-guard overrides. The fix is a
 version-controlled allowlist, but `conformance/data.json:75-79` requires `.gitignore` to cover
 `.claude/`, so `.claude/settings.json` cannot be committed (XC-3).
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
 | Commit `.claude/settings.json` directly | n/a | n/a | n/a | rejected — violates `data.json:75-79` |
 | Ship `docs/claude-settings.template.json`, adopters copy it | T3 | n/a | n/a | XC-3, `strategic-reasoner a07f023f` |
 
-## Decision
+### Decision
 
 Ship `docs/claude-settings.template.json` (tracked). Adopters copy it to `.claude/settings.json` in
 a one-time setup step documented in AGENTS.md. RECOMMENDED, not REQUIRED.
 
-## Consequences
+### Consequences
 
 `.gitignore` `.claude/` rule untouched. The agentic-gates job adds a warn-step comparing the local
 `.claude/settings.json` checksum to the template.
 
 ---
-title: "ADR-011 — Place IC gates inside the existing conformance.yml workflow"
-status: Accepted
-date: 2026-05-22
----
 
-## Context
+## ADR-011 — Place IC gates inside the existing conformance.yml workflow
+
+- **Status:** Accepted
+- **Date:** 2026-05-22
+
+### Context
 
 The IC-1..IC-7 gates (`01-incident-ledger.md:31-39`) need a CI home. A new workflow file would be a
 new file in the `.github/workflows/` required category (`conformance/data.json:27-37`); an existing
 required workflow would not (XC-4 / ADR-008).
 
-## Considered options
+### Considered options
 
 | Option | Tier | Raw score (/50) | Normalized | Source |
 |--------|------|-----------------|-----------|--------|
 | New `agentic-gates.yml` workflow | T2 | n/a | n/a | viable but adds a file |
 | New job inside existing `conformance.yml` | T2 | n/a | n/a | ADR-008 — no new file |
 
-## Decision
+### Decision
 
 Add an `agentic-gates` job to the existing `.github/workflows/conformance.yml` (a required,
 conformance-checked file). No new workflow file.
 
-## Consequences
+### Consequences
 
 The IC gates inherit `conformance.yml`'s required-file status without a new required file. Draft
 delta in §7.
