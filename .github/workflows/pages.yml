@@ -22,13 +22,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # pin to SHA before release
+        uses: actions/checkout@v6  # pin to SHA before release
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5  # pin to SHA before release
+        uses: actions/configure-pages@v6  # pin to SHA before release
 
       - name: Upload docs artifact
-        uses: actions/upload-pages-artifact@v3  # pin to SHA before release
+        uses: actions/upload-pages-artifact@v5  # pin to SHA before release
         with:
           path: docs
 
@@ -43,4 +43,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4  # pin to SHA before release
+        uses: actions/deploy-pages@v5  # pin to SHA before release
