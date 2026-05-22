@@ -172,6 +172,13 @@ cp -R "$files_src/." "$work/"
 
 # Token substitution across every generated file.
 while IFS= read -r -d '' f; do
+	# Skip non-text files (e.g. .DS_Store, images). sed errors out on binary
+	# input ("RE error: illegal byte sequence") and tokens never appear in
+	# binary content anyway. — IC-5 (fail fast on real problems; never
+	# error on cruft that has no tokens).
+	if ! grep -Iq . "$f" 2>/dev/null; then
+		continue
+	fi
 	sed \
 		-e "s|{{REPO_NAME}}|$name|g" \
 		-e "s|{{REPO_SLUG}}|$owner/$name|g" \
