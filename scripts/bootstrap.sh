@@ -170,6 +170,16 @@ work="$_staging/repo"
 mkdir -p "$work"
 cp -R "$files_src/." "$work/"
 
+# Per-license NOTICE — overwrite the template default before token
+# substitution. The default template NOTICE carries Apache-2.0 legal
+# language; without this step a bootstrap with --license MIT or CC-BY-4.0
+# would ship a legally inaccurate NOTICE. Tokens in the per-license file
+# are substituted by the sed loop below.
+notice_src="$licenses_src/NOTICE-$license.txt"
+[ -f "$notice_src" ] ||
+	die "no NOTICE template for license '$license' (expected $notice_src)"
+cp "$notice_src" "$work/NOTICE"
+
 # Token substitution across every generated file.
 while IFS= read -r -d '' f; do
 	# Skip non-text files (e.g. .DS_Store, images). sed errors out on binary
