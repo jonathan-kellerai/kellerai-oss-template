@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/bootstrap_test.sh` — a regression test that bootstraps every artifact
+  type and asserts a clean leftover-token scan, `opa check`/`opa test`, and a
+  passing conformance self-check.
+- Golden-repo gates carried into every bootstrapped repo via `template/_files/`:
+  an `agentic-gates` job in `.github/workflows/conformance.yml`,
+  `scripts/preflight.sh`, `docs/adr/ADR-000-template.md`,
+  `docs/claude-settings.template.json`, and a "Capability Roster" section in
+  `AGENTS.md`. All are TIER-2/TIER-3 — no new conformance-required file is added.
+
+### Changed
+
+- `scripts/bootstrap.sh` is hardened against incident classes IC-1..IC-7: a
+  dependency preflight, fail-fast validation of every flag, atomic generation in
+  a temp staging tree (a failure never leaves a partial tree at `--out`), a
+  `--force` no-clobber guard, a leftover-token scan, and a post-generation OPA
+  conformance self-check. Generated repos are now golden-conformant by
+  construction.
+
 ## [0.2.0] - 2026-05-22
 
 ### Added
