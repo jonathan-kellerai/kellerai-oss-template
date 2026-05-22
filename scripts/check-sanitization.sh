@@ -17,6 +17,22 @@ cd "$root"
 
 fail=0
 count=0
+patterns_file="$(mktemp)"
+trap 'rm -f "$patterns_file"' EXIT
+printf '%s' "$DENYLIST_B64" | base64 -d > "$patterns_file"
+
+# Fail loudly if the decoded denylist contains no actual patterns (only
+# comments / blank lines / nothing). Without this guard the perl loop below
+# would silently iterate zero patterns and report "OK" — a vacuous pass.
+# The stub DENYLIST_B64 shipped in the template decodes to a single comment
+# line, so without this check every adopter would silently bypass the gate.
+pattern_count=$(awk 'NF && !/^[[:space:]]*#/' "$patterns_file" | wc -l | tr -d ' ')
+if [ "$pattern_count" -eq 0 ]; then
+	echo "check-sanitization: FAILED — DENYLIST_B64 is empty (decodes to comments or blank lines only)." >&2
+	echo "Replace DENYLIST_B64 in this script with the base64-encoded denylist for this repo:" >&2
+	printf "  printf 'term1\\nterm2\\n' | base64\n" >&2
+	exit 1
+fi
 while IFS= read -r pattern; do
 	[ -z "$pattern" ] && continue
 	count=$((count + 1))
@@ -30,7 +46,7 @@ while IFS= read -r pattern; do
 		echo "$matches"
 		fail=1
 	fi
-done < <(printf '%s' "$DENYLIST_B64" | base64 --decode)
+done < "$patterns_file"
 
 if [ "$fail" -ne 0 ]; then
 	echo "check-sanitization: FAIL — internal terms must be removed before publication."

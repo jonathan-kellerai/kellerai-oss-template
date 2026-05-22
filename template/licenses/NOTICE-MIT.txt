@@ -1,0 +1,8 @@
+{{REPO_NAME}}
+Copyright {{YEAR}} {{AUTHOR}}
+
+Distributed under the MIT License. See `LICENSE` for the full license text.
+
+The MIT License does not require a NOTICE file; this file is provided for
+attribution clarity. Any downstream redistribution should retain the
+copyright notice above and a copy of `LICENSE`.

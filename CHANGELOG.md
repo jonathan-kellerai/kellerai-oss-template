@@ -36,6 +36,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `bootstrap_test.sh` could fail. The loop now uses `grep -Iq .` to skip
   binary or empty files before invoking sed.
 
+## [0.1.0] - 2026-05-21
+
+### Added
+
+- Initial conformance suite (`12fcfc7`): `conformance/conformance.rego`
+  (OPA policy implementing the OSS publication rules), `conformance/conformance_test.rego`
+  (22 tests covering every deny rule), and `conformance/data.json`
+  (data-driven manifest of required files, directories, artifact types,
+  thresholds, and policy-integrity digest).
+- `scripts/scan-repo-structure.sh` — emits the JSON snapshot consumed by
+  the conformance policy at evaluation time.
+- `scripts/bootstrap.sh` — stamps a new conformant repository from the
+  `template/_files/` scaffold via token substitution; supports four
+  artifact types (`json-schema`, `markdown-spec`, `rego-policy`,
+  `rag-config`) and three SPDX licenses (`Apache-2.0`, `CC-BY-4.0`, `MIT`).
+- `scripts/check-sanitization.sh` — sanitization regression gate that
+  scans every tracked file against a base64-encoded denylist of internal
+  terms (placeholder stub at this release; adopters supply their own
+  denylist).
+- `standard/OSS-PUBLICATION-STANDARD.md` — the normative OSS publication
+  standard that the conformance policy encodes.
+- `template/_files/` — the full tokenized golden-repo scaffold: `README.md`,
+  `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CITATION.cff`,
+  `NOTICE`, `CHANGELOG.md`, `LICENSE` (per-license bodies in `template/licenses/`),
+  `docs/agents/` (conventions, citation, glossary, enforcement),
+  `.github/` (CODEOWNERS, dependabot, PR + issue templates), and the
+  CI workflow scaffolding (`ci.yml`, `commitlint.yml`, `pages.yml`).
+- `.github/workflows/conformance.yml` — reusable workflow consumed by
+  bootstrapped repos via `uses: jonathan-kellerai/kellerai-oss-template/.github/workflows/conformance.yml@<sha>`.
+- `commitlint.config.js`, `lefthook.yml`, `.markdownlint-cli2.yaml`,
+  `.gitignore` — required tooling configuration baselines.
+
 ## [0.2.0] - 2026-05-22
 
 ### Added
