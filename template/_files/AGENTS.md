@@ -60,6 +60,10 @@ When a task needs a specialist capability, prefer the canonical plugin for the
 domain. PR review is handled by `keller-pr-review`, a code-review tool run on
 diffs — it is a workflow gate, not a domain capability.
 
+The roster below lists KellerAI's defaults. Adopters can replace any row with
+their own equivalents — the table is a sensible default, not a binding
+contract; remove or substitute rows that don't match your toolchain.
+
 | Domain | Canonical capability | Secondary |
 | ------ | -------------------- | --------- |
 | Session mining | `thoughtbox` | — |

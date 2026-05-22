@@ -21,7 +21,11 @@ Examples of in-scope defects:
 
 Report suspected security-relevant defects **privately**, through GitHub's **Security Advisories** —
 use the *Report a vulnerability* button on this repository's **Security** tab.
+Direct link: <https://github.com/jonathan-kellerai/kellerai-oss-template/security/advisories/new>
 Do not open a public issue for these.
+
+If GitHub Security Advisories is unavailable, email
+`TODO: maintainer — replace this line with a monitored security contact address` as a fallback.
 
 Include:
 
@@ -32,6 +36,8 @@ Include:
   demonstrates the bypass.
 
 You can expect an initial response within a reasonable time.
+We aim to acknowledge reports within **5 business days** and to provide a
+resolution timeline within **14 business days** of acknowledgement.
 If a defect is confirmed, it is corrected, the policy integrity digest is refrozen,
 and the fix is recorded in `CHANGELOG.md`.
 

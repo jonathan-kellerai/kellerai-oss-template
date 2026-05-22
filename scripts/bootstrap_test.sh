@@ -66,12 +66,29 @@ for atype in "${types[@]}"; do
 	fi
 
 	# H5 — conformance self-check: the generated tree must satisfy the policy.
+	# Capture stdout (JSON) and stderr separately so a scan_script failure or
+	# malformed output is diagnosed immediately rather than silently corrupting
+	# the jq pipeline downstream.
 	scan="$workspace/$atype.json"
-	bash "$scan_script" --root "$out" --artifact-type "$atype" >"$scan"
-	allow="$(opa eval --data "$policy_dir" --input "$scan" --format json \
-		'data.kellerai.oss.conformance.summary' |
-		jq -r '.result[0].expressions[0].value.allow')"
-	if [ "$allow" = "true" ]; then
+	scan_err="$workspace/$atype.scan.err"
+	if ! bash "$scan_script" --root "$out" --artifact-type "$atype" \
+		>"$scan" 2>"$scan_err"; then
+		# Surface scan_script's stderr so the root cause is visible.
+		printf '  scan_script stderr (%s):\n' "$scan_err" >&2
+		[ -s "$scan_err" ] && printf '%s\n' "$(< "$scan_err")" >&2
+		bad "$atype: scan_script exited non-zero — see stderr above"
+		continue
+	fi
+	# Guard against malformed JSON from opa eval / jq before testing allow.
+	allow="$(opa eval \
+		--data "$policy_dir" \
+		--input "$scan" \
+		--format json \
+		'data.kellerai.oss.conformance.summary' 2>/dev/null |
+		jq -r '.result[0].expressions[0].value.allow' 2>/dev/null)" || true
+	if [ -z "$allow" ] || [ "$allow" = "null" ]; then
+		bad "$atype: opa eval output malformed (allow=${allow:-<empty>})"
+	elif [ "$allow" = "true" ]; then
 		ok "$atype: conformance self-check allow == true"
 	else
 		bad "$atype: conformance self-check allow == $allow"

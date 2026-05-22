@@ -41,7 +41,7 @@ jobs:
       #    scan-repo-structure.sh can enumerate branches via git for-each-ref.
       # -----------------------------------------------------------------------
       - name: Checkout caller repo
-        uses: actions/checkout@v4  # pin to SHA before release
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
           path: repo
@@ -52,27 +52,49 @@ jobs:
       #      standard/scripts/scan-repo-structure.sh
       # -----------------------------------------------------------------------
       - name: Checkout kellerai-oss-template (standard)
-        uses: actions/checkout@v4  # pin to SHA before release
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           repository: jonathan-kellerai/kellerai-oss-template
+          # job.workflow_sha is the commit SHA of the reusable-workflow file itself
+          # (i.e. the SHA at which this conformance.yml was called). This ensures the
+          # policy source checked out here always matches the pinned workflow version
+          # the consumer specified — fixing the reproducibility bug (Codex Finding 10).
+          ref: ${{ job.workflow_sha }}
           path: standard
 
       # -----------------------------------------------------------------------
-      # 3. Install OPA.
+      # 3. Validate artifact_type input before proceeding.
+      #    Allowed values mirror conformance/data.json -> schema.artifact_types.
+      # -----------------------------------------------------------------------
+      - name: Validate artifact_type input
+        shell: bash
+        run: |
+          case "${{ inputs.artifact_type }}" in
+            json-schema|markdown-spec|rego-policy|rag-config)
+              echo "artifact_type '${{ inputs.artifact_type }}' is valid."
+              ;;
+            *)
+              echo "::error::artifact_type must be one of: json-schema|markdown-spec|rego-policy|rag-config (got: ${{ inputs.artifact_type }})"
+              exit 1
+              ;;
+          esac
+
+      # -----------------------------------------------------------------------
+      # 4. Install OPA.
       # -----------------------------------------------------------------------
       - name: Install OPA
-        uses: open-policy-agent/setup-opa@v2.4.0  # pin to SHA before release
+        uses: open-policy-agent/setup-opa@b2b258e089860efaadaaf71bf6e3aecb4a3eeff1  # v2.4.0
         with:
           version: ${{ inputs.opa_version }}
 
       # -----------------------------------------------------------------------
-      # 4. Verify the policy itself is syntactically valid.
+      # 5. Verify the policy itself is syntactically valid.
       # -----------------------------------------------------------------------
       - name: OPA check (policy syntax)
         run: opa check standard/conformance/
 
       # -----------------------------------------------------------------------
-      # 5. Scan the caller repo into repo-structure.json.
+      # 6. Scan the caller repo into repo-structure.json.
       #    --root points at the checked-out caller.
       #    --artifact-type comes from the workflow_call input.
       # -----------------------------------------------------------------------
@@ -84,7 +106,7 @@ jobs:
           > repo-structure.json
 
       # -----------------------------------------------------------------------
-      # 6. Evaluate the policy.
+      # 7. Evaluate the policy.
       #    Fail the job if any error-severity violation is found.
       #    Always print the human-readable table regardless.
       # -----------------------------------------------------------------------

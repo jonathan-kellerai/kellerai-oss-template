@@ -69,7 +69,7 @@ workflows automatically.
 
 ### RE2 regex
 
-Used by the `restrict-external-naming` GitHub Ruleset and `validate-branch-name.yml`:
+Used by `validate-branch-name.yml`:
 
 ```text
 ^external/(?:feat|fix|chore|docs|refactor|test|ci|build|perf|revert|style|hotfix|spike|wip|release|rnd)-[A-Z]+-\d+(?:-[a-z][a-z0-9]*)+-p[0-4]$
@@ -110,7 +110,7 @@ All three must be registered as required checks on the target branch
 
 ## GitHub Rulesets configuration
 
-Run the four commands below once per repository.
+Run the three commands below once per repository.
 Replace `{owner}/{repo}` with the actual slug — for this repo that is
 `jonathan-kellerai/kellerai-oss-template`.
 The `-F 'rules=[...]'` flag passes the value as raw JSON.
@@ -206,24 +206,28 @@ gh api repos/{owner}/{repo}/rulesets \
   ]'
 ```
 
-### Ruleset 4 — restrict-external-naming
+### Ruleset 4 — restrict-external-naming (plan-gated)
 
-```bash
-gh api repos/{owner}/{repo}/rulesets \
-  --method POST \
-  --header "Accept: application/vnd.github+json" \
-  -f name="restrict-external-naming" \
-  -f target="branch" \
-  -f enforcement="active" \
-  -F 'conditions={"ref_name":{"include":["refs/heads/external/**"],"exclude":[]}}' \
-  -F 'rules=[
-    {"type":"branch_name_pattern","parameters":{
-      "operator":"regex",
-      "pattern":"^external/(?:feat|fix|chore|docs|refactor|test|ci|build|perf|revert|style|hotfix|spike|wip|release|rnd)-[A-Z]+-\\d+(?:-[a-z][a-z0-9]*)+-p[0-4]$",
-      "negate":false
-    }}
-  ]'
-```
+The `branch_name_pattern` rule type used to enforce push-time naming on
+`external/**` branches requires **GitHub Pro, Team, or Enterprise Cloud**.
+On a Free-plan public repository the rulesets API returns HTTP 422
+"Validation Failed" for pattern-type rules. This ruleset cannot be applied
+to this repository's current GitHub plan; no `gh api` command is provided.
+
+**Current enforcement:** Push-time naming validation is not enforced at the
+Git layer. The `external/*` branch naming convention is enforced at
+**PR-open time** by `.github/workflows/validate-branch-name.yml`, which
+runs the same RE2 regex and fails the required status check
+`Branch name pattern (external/)` before the PR can merge.
+
+**Push-time enforcement gap:** Contributors can push a malformed
+`external/*` branch to the repository without an immediate error. The
+failure surfaces only when they open a pull request targeting `dev`.
+
+**To close the gap:** Upgrade the repository to GitHub Pro, Team, or
+Enterprise Cloud, then apply the `branch_name_pattern` ruleset rule via the
+GitHub Rulesets API using the RE2 regex in [RE2 regex](#re2-regex) above.
+Until then, `validate-branch-name.yml` is the sole enforcement point.
 
 ## Linear integration
 

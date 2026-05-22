@@ -150,5 +150,7 @@ jq -n \
 	    ci_uses: ($ci | split("\n") | map(select(length > 0))),
 	    policy_digest: $digest
 	  }
-	| if $adir != "" then . + {artifact_dir: $adir} else . end
+	| . + {artifact_dir: (if $adir != "" then $adir
+	         else ({"json-schema":"schemas","markdown-spec":"specs","rego-policy":"conformance","rag-config":"configs"}[$atype] // "")
+	         end)}
 	'
