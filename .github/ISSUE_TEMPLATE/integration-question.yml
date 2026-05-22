@@ -1,0 +1,41 @@
+name: Integration question
+description: Ask how to adopt the conformance workflow in your repository.
+title: "[integration] "
+labels: ["question", "integration"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for questions about wiring the reusable conformance workflow into
+        your own repo, running `scan-repo-structure.sh` locally, or interpreting
+        a policy violation. For defects in the standard itself, use the bug report
+        template instead.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Your context
+      description: >
+        What kind of repository are you integrating (artifact type, language,
+        build system)? Which conformance checks are you targeting?
+      placeholder: "A json-schema repo using ajv; I want to add the conformance job to an existing ci.yml."
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      placeholder: "The conformance job fails with 'artifact directory missing: schemas' even though the directory exists — what am I missing?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reading
+    attributes:
+      label: What have you already read?
+      description: >
+        Optional — which docs you have already consulted (README, adoption-guide.md,
+        conformance/README.md, CONTRIBUTING.md, etc.).
+    validations:
+      required: false

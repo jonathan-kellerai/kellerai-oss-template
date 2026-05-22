@@ -1,0 +1,154 @@
+# Reusable conformance workflow — callers invoke this via:
+#
+#   conformance:
+#     uses: jonathan-kellerai/kellerai-oss-template/.github/workflows/conformance.yml@<sha>
+#     with:
+#       artifact_type: json-schema   # or markdown-spec | rego-policy | rag-config
+#
+# NOTE: This repo must be public before any consumer's first CI run;
+# GitHub forbids a public repo from calling a reusable workflow in a private repo.
+#
+# pin to SHA before release
+name: Conformance check (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      artifact_type:
+        description: >
+          The artifact type of the calling repository — one of:
+          json-schema | markdown-spec | rego-policy | rag-config
+        type: string
+        required: true
+      opa_version:
+        description: OPA version to install via open-policy-agent/setup-opa
+        type: string
+        required: false
+        default: "1.14.1"
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    name: OPA conformance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Check out the CALLING repository at full depth so that
+      #    scan-repo-structure.sh can enumerate branches via git for-each-ref.
+      # -----------------------------------------------------------------------
+      - name: Checkout caller repo
+        uses: actions/checkout@v4  # pin to SHA before release
+        with:
+          fetch-depth: 0
+          path: repo
+
+      # -----------------------------------------------------------------------
+      # 2. Check out this template repo alongside so we have:
+      #      standard/conformance/   — the policy + data.json
+      #      standard/scripts/scan-repo-structure.sh
+      # -----------------------------------------------------------------------
+      - name: Checkout kellerai-oss-template (standard)
+        uses: actions/checkout@v4  # pin to SHA before release
+        with:
+          repository: jonathan-kellerai/kellerai-oss-template
+          path: standard
+
+      # -----------------------------------------------------------------------
+      # 3. Install OPA.
+      # -----------------------------------------------------------------------
+      - name: Install OPA
+        uses: open-policy-agent/setup-opa@v2.4.0  # pin to SHA before release
+        with:
+          version: ${{ inputs.opa_version }}
+
+      # -----------------------------------------------------------------------
+      # 4. Verify the policy itself is syntactically valid.
+      # -----------------------------------------------------------------------
+      - name: OPA check (policy syntax)
+        run: opa check standard/conformance/
+
+      # -----------------------------------------------------------------------
+      # 5. Scan the caller repo into repo-structure.json.
+      #    --root points at the checked-out caller.
+      #    --artifact-type comes from the workflow_call input.
+      # -----------------------------------------------------------------------
+      - name: Scan repo structure
+        run: |
+          bash standard/scripts/scan-repo-structure.sh \
+            --root "$GITHUB_WORKSPACE/repo" \
+            --artifact-type "${{ inputs.artifact_type }}" \
+          > repo-structure.json
+
+      # -----------------------------------------------------------------------
+      # 6. Evaluate the policy.
+      #    Fail the job if any error-severity violation is found.
+      #    Always print the human-readable table regardless.
+      # -----------------------------------------------------------------------
+      - name: Evaluate conformance policy
+        run: |
+          set +e
+          result=$(opa eval \
+            --data standard/conformance/ \
+            --input repo-structure.json \
+            --format pretty \
+            'data.kellerai.oss.conformance.violations')
+          exit_code=$?
+          set -e
+
+          echo "=== Conformance violations ==="
+          # Print a readable table: one line per violation.
+          echo "$result" | python3 - <<'PYEOF'
+          import sys, json
+
+          raw = sys.stdin.read().strip()
+          if not raw:
+              print("(no output from opa eval)")
+              sys.exit(1)
+
+          try:
+              outer = json.loads(raw)
+          except json.JSONDecodeError as e:
+              print(f"Could not parse opa eval output: {e}")
+              print(raw)
+              sys.exit(1)
+
+          # opa eval --format pretty wraps results in {"result": [...]}
+          violations = []
+          if isinstance(outer, dict) and "result" in outer:
+              for binding in outer["result"]:
+                  for expr in binding.get("expressions", []):
+                      val = expr.get("value", [])
+                      if isinstance(val, list):
+                          violations.extend(val)
+          elif isinstance(outer, list):
+              violations = outer
+
+          if not violations:
+              print("OK — no violations")
+              sys.exit(0)
+
+          # Print table header
+          print(f"{'SEV':<8}  {'RULE':<30}  {'FIELD':<40}  MSG")
+          print("-" * 120)
+          errors = 0
+          for v in sorted(violations, key=lambda x: (x.get("severity",""), x.get("rule",""))):
+              sev   = v.get("severity", "?")
+              rule  = v.get("rule", "?")
+              field = v.get("field", "?")
+              msg   = v.get("msg", "?")
+              print(f"{sev:<8}  {rule:<30}  {field:<40}  {msg}")
+              if sev == "error":
+                  errors += 1
+
+          print()
+          if errors:
+              print(f"FAIL — {errors} error-severity violation(s). Fix them before merging.")
+              sys.exit(1)
+          else:
+              print("PASS — warnings only (non-blocking).")
+          PYEOF
+        shell: bash

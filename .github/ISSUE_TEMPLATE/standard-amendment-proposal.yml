@@ -1,0 +1,55 @@
+name: Standard / policy amendment proposal
+description: Propose a new rule, required file, artifact type, or other change to the standard or OPA policy.
+title: "[amendment] "
+labels: ["amendment", "standard"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to propose a change to `standard/OSS-PUBLICATION-STANDARD.md`,
+        `conformance/conformance.rego`, `conformance/data.json`, or the template
+        scaffold in `template/`. All substantive changes require a CHANGELOG entry
+        and a semver classification.
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What do you propose?
+      description: The new or changed rule, field, file, or policy check — stated precisely.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: >
+        Why is this needed? Cite evidence — a concrete structural drift incident,
+        a gap in the current standard, or a pattern from another repo in the suite.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: semver
+    attributes:
+      label: Semver impact
+      description: >
+        How would this change affect consumers who already call the reusable
+        conformance workflow or use the bootstrap scaffold?
+      options:
+        - "major — removes or renames a required file/rule, or adds a new error-severity check that existing conformant repos would fail"
+        - "minor — additive, backward-compatible (new optional field, new warning-severity check, new artifact type)"
+        - "patch — clarification, editorial, or docs-only change"
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-repos
+    attributes:
+      label: Affected repositories
+      description: >
+        Optional — which of the six staged repos (aegis-drop, dgm-telemetry,
+        limen-spec, matryoshka-spec, opa-rego-patterns, sentinel-rag) would need
+        updating if this proposal were accepted?
+    validations:
+      required: false

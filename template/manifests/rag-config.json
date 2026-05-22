@@ -1,0 +1,6 @@
+{
+  "artifact_type": "rag-config",
+  "artifact_dir": "configs",
+  "primary_validator": "ajv",
+  "owner": "jonathan-kellerai"
+}

@@ -1,0 +1,18 @@
+# Tooling state — conformance policy requires these exact patterns
+.claude/
+.claude-tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor cruft
+*.swp
+*.swo
+*.bak
+
+# Node
+node_modules/
+
+# Temporary files
+*.tmp

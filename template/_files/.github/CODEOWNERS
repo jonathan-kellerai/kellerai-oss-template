@@ -1,0 +1,9 @@
+# Sensitive paths — changes require review by the repository owner.
+# Leaf documents are intentionally left open to contributors.
+
+/.github/        @{{OWNER}}
+/LICENSE         @{{OWNER}}
+/NOTICE          @{{OWNER}}
+/AGENTS.md       @{{OWNER}}
+/CLAUDE.md       @{{OWNER}}
+/{{ARTIFACT_DIR}}/ @{{OWNER}}

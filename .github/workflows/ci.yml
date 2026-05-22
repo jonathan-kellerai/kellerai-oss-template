@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Primary artifact validation: OPA syntax check + test suite
+  # (artifact_type = rego-policy; primary_validator = opa)
+  # ---------------------------------------------------------------------------
+  opa-validate:
+    name: OPA check + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4  # pin to SHA before release
+
+      - name: Install OPA
+        uses: open-policy-agent/setup-opa@v2.4.0  # pin to SHA before release
+        with:
+          version: "1.14.1"
+
+      - name: OPA check (conformance policy syntax)
+        run: opa check conformance/
+
+      - name: OPA test suite
+        run: opa test conformance/ --verbose
+
+  # ---------------------------------------------------------------------------
+  # JSON well-formedness: every *.json file must parse cleanly with jq
+  # ---------------------------------------------------------------------------
+  json-wellformed:
+    name: JSON well-formedness
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4  # pin to SHA before release
+
+      - name: Validate all JSON files
+        run: |
+          status=0
+          while IFS= read -r f; do
+            if ! jq empty "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::invalid JSON"
+              status=1
+            fi
+          done < <(git ls-files '*.json')
+          exit $status
+
+  # ---------------------------------------------------------------------------
+  # Markdown lint
+  # Config: .markdownlint-cli2.yaml at repo root (MD013 disabled for wide tables)
+  # ---------------------------------------------------------------------------
+  markdown-lint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4  # pin to SHA before release
+
+      - name: markdownlint-cli2
+        run: npx --yes markdownlint-cli2 "**/*.md" "#node_modules"
+
+  # ---------------------------------------------------------------------------
+  # Sanitization regression gate
+  # Fails the build on any match against the base64-encoded internal-term denylist.
+  # ---------------------------------------------------------------------------
+  sanitization:
+    name: Sanitization gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4  # pin to SHA before release
+
+      - name: Run sanitization check
+        run: bash scripts/check-sanitization.sh
+
+  # ---------------------------------------------------------------------------
+  # Conformance: this repo must pass its own OPA conformance policy.
+  # artifact_type = rego-policy (matches conformance/data.json artifact_types)
+  # ---------------------------------------------------------------------------
+  conformance:
+    name: Conformance (self)
+    needs: [opa-validate]
+    uses: ./.github/workflows/conformance.yml
+    with:
+      artifact_type: rego-policy

@@ -1,0 +1,39 @@
+name: Standard / policy defect
+description: The standard or the OPA policy is wrong, or contradicts the documentation.
+title: "[bug] "
+labels: ["bug", "standard"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for a concrete defect in `standard/OSS-PUBLICATION-STANDARD.md`,
+        `conformance/conformance.rego`, or `conformance/data.json` — or a contradiction
+        between any of those files and the README, docs, or worked examples.
+        For an ambiguity rather than an outright error, use the clarification request instead.
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Where is the defect?
+      description: >
+        File path and section — e.g. `conformance/data.json` → `schema.required_files`,
+        or `standard/OSS-PUBLICATION-STANDARD.md` §2 (CI).
+      placeholder: "file: conformance/data.json, key: schema.required_github_files"
+    validations:
+      required: true
+
+  - type: textarea
+    id: defect
+    attributes:
+      label: What is wrong?
+      description: Quote the offending text or field value and explain the defect.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it say / do instead?
+      description: Optional — a proposed correction or the correct policy behaviour.
+    validations:
+      required: false

@@ -1,0 +1,38 @@
+name: Standard / policy clarification
+description: A standard rule or policy element is ambiguous or under-specified.
+title: "[clarification] "
+labels: ["clarification", "standard"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when a rule in `standard/OSS-PUBLICATION-STANDARD.md` or a
+        check in `conformance/conformance.rego` is not wrong, but admits more
+        than one reading or leaves a decision unstated.
+
+  - type: textarea
+    id: element
+    attributes:
+      label: Which element is ambiguous?
+      description: >
+        Standard section, policy rule name, or data.json key — with a file and
+        line reference where possible.
+      placeholder: "OSS-PUBLICATION-STANDARD.md §2 — does 'primary artifact validation' require ajv validate on examples or only ajv compile on schemas?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: ambiguity
+    attributes:
+      label: What is unclear?
+      description: Describe the competing readings, or the detail that is missing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Why does it matter?
+      description: Optional — what decision, adoption step, or CI configuration this ambiguity blocks.
+    validations:
+      required: false

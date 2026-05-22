@@ -1,0 +1,10 @@
+# Lefthook git hooks. Install locally with: lefthook install
+pre-commit:
+  parallel: true
+  commands:
+    opa-check:
+      run: opa check conformance/
+    opa-test:
+      run: opa test conformance/
+    sanitization:
+      run: bash scripts/check-sanitization.sh

@@ -1,0 +1,32 @@
+name: "{{ARTIFACT_NOUN}} defect"
+description: "Report something that is wrong in the {{ARTIFACT_NOUN}} or contradicts the docs."
+title: "[bug] "
+labels: ["bug", "{{ARTIFACT_NOUN}}"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for a concrete defect in the `{{ARTIFACT_DIR}}/` artifact, or a
+        contradiction between the artifact and its supporting docs.
+        For an ambiguity rather than an outright error, use the clarification form instead.
+  - type: textarea
+    id: location
+    attributes:
+      label: Where is the defect?
+      description: "File and section — e.g. `{{ARTIFACT_DIR}}/example.{{ARTIFACT_TYPE}}` §3."
+    validations:
+      required: true
+  - type: textarea
+    id: defect
+    attributes:
+      label: What is wrong?
+      description: Quote the offending text and explain the defect.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it say instead?
+      description: Optional — a proposed correction.
+    validations:
+      required: false
