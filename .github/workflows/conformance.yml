@@ -41,7 +41,7 @@ jobs:
       #    scan-repo-structure.sh can enumerate branches via git for-each-ref.
       # -----------------------------------------------------------------------
       - name: Checkout caller repo
-        uses: actions/checkout@v4  # pin to SHA before release
+        uses: actions/checkout@v6  # pin to SHA before release
         with:
           fetch-depth: 0
           path: repo
@@ -52,7 +52,7 @@ jobs:
       #      standard/scripts/scan-repo-structure.sh
       # -----------------------------------------------------------------------
       - name: Checkout kellerai-oss-template (standard)
-        uses: actions/checkout@v4  # pin to SHA before release
+        uses: actions/checkout@v6  # pin to SHA before release
         with:
           repository: jonathan-kellerai/kellerai-oss-template
           path: standard
