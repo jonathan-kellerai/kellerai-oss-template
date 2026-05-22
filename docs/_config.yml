@@ -1,0 +1,12 @@
+# Jekyll configuration for the kellerai-oss-template docs site.
+# GitHub Pages reads this file when building the site via actions/jekyll-build-pages.
+# The "minimal" theme is a built-in GitHub Pages theme — no gem installation required.
+
+theme: jekyll-theme-minimal
+title: kellerai-oss-template
+description: Conformance policy and bootstrap scaffold for KellerAI OSS repositories
+
+# Render docs/index.md as the site root (/).
+# All other .md files in docs/ become their own pages at matching paths.
+include:
+  - "*.md"
