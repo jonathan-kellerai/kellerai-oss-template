@@ -85,7 +85,7 @@ opa eval -d conformance/ -i repo-structure.json \
 
 ## Repository layout
 
-```
+```text
 README.md  AGENTS.md  CLAUDE.md  CONTRIBUTING.md  SECURITY.md
 LICENSE  NOTICE  CHANGELOG.md  CITATION.cff
 commitlint.config.js  lefthook.yml  .markdownlint-cli2.yaml  .gitignore

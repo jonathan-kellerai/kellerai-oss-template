@@ -70,7 +70,7 @@ cp /tmp/oss-tmpl/scripts/check-sanitization.sh scripts/
 Minimum required structure — see `docs/conformance-policy.md` for the full list.
 At a minimum you need:
 
-```
+```text
 README.md  AGENTS.md  CLAUDE.md  LICENSE  NOTICE  CHANGELOG.md
 CITATION.cff  CONTRIBUTING.md  SECURITY.md  .gitignore
 .markdownlint-cli2.yaml  commitlint.config.js  lefthook.yml

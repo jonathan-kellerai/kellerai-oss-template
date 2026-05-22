@@ -59,7 +59,7 @@ flag loads `data.json`. Do not pass just the `.rego` file.
 
 **Required files** (from `conformance/data.json:4-18`):
 
-```
+```text
 README.md  AGENTS.md  CLAUDE.md  LICENSE  NOTICE  CHANGELOG.md
 CITATION.cff  CONTRIBUTING.md  SECURITY.md  .gitignore
 .markdownlint-cli2.yaml  commitlint.config.js  lefthook.yml
@@ -79,7 +79,7 @@ template file in `template/_files/`.
 
 **Required directories** (from `conformance/data.json:19-26`):
 
-```
+```text
 .github  .github/workflows  .github/ISSUE_TEMPLATE
 docs  docs/agents  scripts
 ```
@@ -96,7 +96,7 @@ docs  docs/agents  scripts
 
 **Required `.github/` files** (from `conformance/data.json:27-35`):
 
-```
+```text
 .github/CODEOWNERS
 .github/dependabot.yml
 .github/PULL_REQUEST_TEMPLATE.md
@@ -119,7 +119,7 @@ substitute tokens.
 
 **Required agent docs** (from `conformance/data.json:36-41`):
 
-```
+```text
 docs/agents/conventions.md
 docs/agents/citation.md
 docs/agents/glossary.md
@@ -138,7 +138,7 @@ docs/agents/enforcement.md
 
 **Required scripts** (from `conformance/data.json:42-44`):
 
-```
+```text
 scripts/check-sanitization.sh
 ```
 
@@ -156,7 +156,7 @@ for the regeneration command).
 
 **Valid values** (from `conformance/data.json:45-50`):
 
-```
+```text
 json-schema  markdown-spec  rego-policy  rag-config
 ```
 
@@ -243,7 +243,7 @@ at `AGENTS.md`. See `template/_files/README.md` for the canonical form.
 **Trigger:** `.gitignore` is missing one or more required patterns listed in
 `data.schema.gitignore_required_patterns` (from `conformance/data.json:72-76`):
 
-```
+```text
 .claude/
 .claude-tmp/
 .DS_Store

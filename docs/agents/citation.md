@@ -13,7 +13,7 @@ terms of that licence. Attribution is required; see the templates below.
 
 > *kellerai-oss-template* — OPA/Rego OSS structural conformance policy and
 > bootstrap scaffold (version 0.1.0). Jonathan A. Bowe, 2026.
-> Licensed Apache-2.0. https://github.com/jonathan-kellerai/kellerai-oss-template
+> Licensed Apache-2.0. <https://github.com/jonathan-kellerai/kellerai-oss-template>
 
 When citing a specific rule or behaviour, add the file and line:
 `conformance/conformance.rego:119` for the `artifact_type_known` rule.
@@ -45,7 +45,7 @@ GitHub's "Cite this repository" widget and Zenodo archiving both read it
 automatically. The `CITATION.cff` is the authoritative citation source; the
 templates above restate it for convenience.
 
-Verify `CITATION.cff` against https://citation-file-format.github.io/ before
+Verify `CITATION.cff` against <https://citation-file-format.github.io/> before
 modifying it — do not invent fields from memory.
 
 ## Citing the OPA/Rego policy specifically
@@ -54,7 +54,7 @@ If you are citing the conformance policy (not the repo as a whole), use:
 
 > kellerai-oss-template `conformance/conformance.rego` (package
 > `kellerai.oss.conformance`), version 0.1.0.
-> https://github.com/jonathan-kellerai/kellerai-oss-template
+> <https://github.com/jonathan-kellerai/kellerai-oss-template>
 
 Reference specific rules by rule id and line range — e.g.
 `conformance.rego:243-254` for the `policy_integrity` rule.
@@ -66,4 +66,4 @@ The prose standard that the policy machine-enforces is tracked in
 
 > *kellerai OSS Publication Standard* (2026-05-21). Jonathan A. Bowe.
 > Distributed with kellerai-oss-template v0.1.0.
-> https://github.com/jonathan-kellerai/kellerai-oss-template
+> <https://github.com/jonathan-kellerai/kellerai-oss-template>

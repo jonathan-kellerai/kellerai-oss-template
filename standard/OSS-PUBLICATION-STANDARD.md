@@ -104,6 +104,7 @@ Allowed `<type>` values: `feat fix chore docs refactor test ci build perf revert
 Priority: `p0`=critical · `p1`=high · `p2`=medium · `p3`=low · `p4`=backlog (maps to the kellerai P0–P4 severity scale).
 
 **Three required gate workflows** (wired as required status checks):
+
 - `.github/workflows/validate-branch-name.yml` — RE2 regex enforcement at PR open
 - `.github/workflows/validate-branch-tier.yml` — tier-source restriction (main←qa←dev←external)
 - `.github/workflows/validate-linked-issue.yml` — issue must be Open + have `codeowner-approved` label

@@ -1,6 +1,8 @@
 config:
   default: true
   MD013: false  # line length — disabled for spec and template prose
+  MD041: false  # first-line-h1 — conflicts with mandated @AGENTS.md first line in CLAUDE.md and PR-template convention (## Summary opener)
+  MD060: false  # table-column-style — cosmetic only; existing tables use a valid style the rule dislikes
 ignores:
   - "node_modules/**"
   - "CHANGELOG.md"

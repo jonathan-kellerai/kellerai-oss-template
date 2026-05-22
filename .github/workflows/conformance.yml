@@ -91,22 +91,40 @@ jobs:
       - name: Evaluate conformance policy
         run: |
           set +e
-          result=$(opa eval \
+          opa eval \
             --data standard/conformance/ \
             --input repo-structure.json \
-            --format pretty \
-            'data.kellerai.oss.conformance.violations')
+            --format json \
+            'data.kellerai.oss.conformance.violations' \
+            > opa-eval.stdout \
+            2> opa-eval.stderr
           exit_code=$?
           set -e
 
-          echo "=== Conformance violations ==="
-          # Print a readable table: one line per violation.
-          echo "$result" | python3 - <<'PYEOF'
-          import sys, json
+          # Surface the real opa error before doing anything else.
+          if [ "$exit_code" -ne 0 ]; then
+            echo "::error::opa eval failed (exit $exit_code)"
+            echo "=== opa eval stderr ==="
+            cat opa-eval.stderr
+            echo "=== repo-structure.json (first 400 bytes) ==="
+            head -c 400 repo-structure.json
+            exit 1
+          fi
 
-          raw = sys.stdin.read().strip()
+          result=$(cat opa-eval.stdout)
+
+          echo "=== Conformance violations ==="
+          # Pass the opa output via OPA_RESULT env var so the heredoc stdin
+          # is not in conflict with a pipe (avoids shellcheck SC2259).
+          # Print a readable table: one line per violation.
+          OPA_RESULT="$result" python3 - <<'PYEOF'
+          import sys, json, os
+
+          raw = os.environ.get("OPA_RESULT", "").strip()
           if not raw:
-              print("(no output from opa eval)")
+              # opa eval exited 0 but produced no stdout — should not happen with
+              # --format json, but treat it as an error rather than silently passing.
+              print("::error::opa eval succeeded but produced no output")
               sys.exit(1)
 
           try:
@@ -116,7 +134,7 @@ jobs:
               print(raw)
               sys.exit(1)
 
-          # opa eval --format pretty wraps results in {"result": [...]}
+          # opa eval --format json wraps results in {"result": [...]}
           violations = []
           if isinstance(outer, dict) and "result" in outer:
               for binding in outer["result"]:

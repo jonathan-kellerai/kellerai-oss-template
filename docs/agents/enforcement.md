@@ -53,7 +53,7 @@ Source: `conformance.rego:256-264`.
 `.github/CODEOWNERS` routes pull-request review for policy-sensitive paths to
 `@jonathan-kellerai`. The locked paths are:
 
-```
+```text
 .github/
 LICENSE
 NOTICE
