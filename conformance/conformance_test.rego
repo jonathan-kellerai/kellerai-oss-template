@@ -19,6 +19,9 @@ _ok_paths := [
 	"docs/agents/conventions.md", "docs/agents/citation.md",
 	"docs/agents/glossary.md", "docs/agents/enforcement.md",
 	"scripts/check-sanitization.sh", "conformance/conformance.rego",
+	".github/workflows/validate-branch-name.yml",
+	".github/workflows/validate-branch-tier.yml",
+	".github/workflows/validate-linked-issue.yml",
 ]
 
 _ok_files := [{"path": p, "size": 100} | some p in _ok_paths]

@@ -79,17 +79,38 @@ set of internal terms removed during that repo's prior sanitization pass.
   message. Config in a root `commitlint.config.js` (discoverable; lets
   contributors lint locally) plus a `.github/workflows/commitlint.yml`.
 
-## 5. Branch naming
+## 5. Branch naming and contributor governance
 
-- **Agent-aware:** `<agent>/<scope>` for agent work (`claude/*`, `codex/*`);
-  `feat/* fix/* docs/* chore/*` for humans.
-- **Convention edge-case review (required per repo):** each finalizing session
-  must document the logical-but-usually-unlisted cases that cause agent errors,
-  in `docs/agents/conventions.md` — e.g. working on `main` / detached HEAD,
-  multi-scope changes, `<scope>` kebab-casing, revert/hotfix branches,
-  continuing another agent's branch, worktrees, the always-base-off-`main`
-  rule, fork vs same-repo PRs, the commit `type` for CHANGELOG / CI / agent-doc
-  edits, imperative mood with no trailing period, body wrap at 72 chars.
+**4-tier branch model (all kellerai OSS repos):**
+
+```text
+external/<type>-<ISSUE-KEY>-<scope>-<gerund>-p<N>
+        ↓  PR + validate-branch-name + validate-linked-issue
+      dev
+        ↓  PR + validate-branch-tier
+       qa
+        ↓  PR + squash-only + CODEOWNER review + all gate checks
+      main
+```
+
+**Internal maintainers (CODEOWNERS):** use the standard kellerai convention (unchanged):
+`<type>/<ISSUE-KEY>-<scope>-<gerund>` — e.g. `feat/ABC-123-auth-adding-oauth`
+
+**External contributors:** prepend `external/` and append a priority suffix:
+`external/<type>-<ISSUE-KEY>-<scope>-<gerund>-p<N>` — e.g. `external/feat-ABC-123-auth-adding-oauth-p1`
+
+Allowed `<type>` values: `feat fix chore docs refactor test ci build perf revert style hotfix spike wip release rnd`
+
+Priority: `p0`=critical · `p1`=high · `p2`=medium · `p3`=low · `p4`=backlog (maps to the kellerai P0–P4 severity scale).
+
+**Three required gate workflows** (wired as required status checks):
+- `.github/workflows/validate-branch-name.yml` — RE2 regex enforcement at PR open
+- `.github/workflows/validate-branch-tier.yml` — tier-source restriction (main←qa←dev←external)
+- `.github/workflows/validate-linked-issue.yml` — issue must be Open + have `codeowner-approved` label
+
+**Four GitHub Rulesets** complete the enforcement: `protect-main` (squash-only, CODEOWNER review, deletion + force-push blocked), `protect-qa`, `protect-dev`, and `restrict-external-naming` (RE2 regex at branch-creation time). Full `gh api` commands and Linear integration instructions: `docs/branch-governance.md`.
+
+**Convention edge-case review (required per repo):** each finalizing session must document the logical-but-usually-unlisted cases that cause agent errors in `docs/agents/conventions.md` — e.g. working on `main` / detached HEAD, multi-scope changes, `<scope>` kebab-casing, revert/hotfix branches, continuing another agent's branch, worktrees, the always-base-off-`main` rule, fork vs same-repo PRs, the commit `type` for CHANGELOG / CI / agent-doc edits, imperative mood with no trailing period, body wrap at 72 chars.
 
 ## 6. Pre-commit hook
 

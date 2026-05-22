@@ -31,7 +31,10 @@
       ".github/workflows/ci.yml",
       ".github/workflows/commitlint.yml",
       ".github/workflows/pages.yml",
-      ".github/ISSUE_TEMPLATE/config.yml"
+      ".github/ISSUE_TEMPLATE/config.yml",
+      ".github/workflows/validate-branch-name.yml",
+      ".github/workflows/validate-branch-tier.yml",
+      ".github/workflows/validate-linked-issue.yml"
     ],
     "required_agent_docs": [
       "docs/agents/conventions.md",
