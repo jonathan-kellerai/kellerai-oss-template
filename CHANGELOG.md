@@ -27,6 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   conformance self-check. Generated repos are now golden-conformant by
   construction.
 
+### Fixed
+
+- `scripts/bootstrap.sh`: skip non-text files (e.g. `.DS_Store`) during token
+  substitution. The sed loop previously errored with `RE error: illegal byte
+  sequence` if the template tree picked up local macOS Finder cruft; CI is
+  unaffected (fresh checkout has no cruft), but local runs of
+  `bootstrap_test.sh` could fail. The loop now uses `grep -Iq .` to skip
+  binary or empty files before invoking sed.
+
 ## [0.2.0] - 2026-05-22
 
 ### Added
