@@ -3,6 +3,7 @@ name: Deploy docs to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore: ['audit/**']
   workflow_dispatch:
 
 # Only one Pages deploy may run at a time; do not cancel in-progress deploys.

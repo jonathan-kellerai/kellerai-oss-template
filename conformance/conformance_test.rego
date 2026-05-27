@@ -18,17 +18,29 @@ _ok_paths := [
 	".github/workflows/pages.yml", ".github/ISSUE_TEMPLATE/config.yml",
 	"docs/agents/conventions.md", "docs/agents/citation.md",
 	"docs/agents/glossary.md", "docs/agents/enforcement.md",
-	"scripts/check-sanitization.sh", "conformance/conformance.rego",
+	"scripts/check-sanitization.sh", "scripts/pulse.sh",
+	"conformance/conformance.rego",
 	".github/workflows/validate-branch-name.yml",
 	".github/workflows/validate-branch-tier.yml",
 	".github/workflows/validate-linked-issue.yml",
+	".github/workflows/trust-dial-gate.yml",
+	".github/workflows/trust-dial-outcome.yml",
+	".github/workflows/blast-radius-pulse.yml",
+	".github/workflows/blast-radius-outcome.yml",
+	"audit/trust-dial-state.json",
+	"audit/decision-trace.jsonl",
+	"audit/blast-radius.jsonl",
+	"conformance/affects.json",
+	"conformance/blast_radius.rego",
+	"conformance/blast_radius_test.rego",
+	"docs/adr/ADR-002-blast-radius-pulse.md",
 ]
 
 _ok_files := [{"path": p, "size": 100} | some p in _ok_paths]
 
 _ok_dirs := [
 	".github", ".github/workflows", ".github/ISSUE_TEMPLATE",
-	"docs", "docs/agents", "scripts", "conformance",
+	"docs", "docs/agents", "scripts", "conformance", "audit",
 ]
 
 _ok_input := {
@@ -44,7 +56,7 @@ _ok_input := {
 		"README.md": {"line_count": 200, "first_content_line": "# Example", "tail": "### For agents\nstart at AGENTS.md"},
 		".gitignore": {"line_count": 10, "lines": [".claude/", ".claude-tmp/", ".DS_Store", "node_modules/"]},
 	},
-	"ci_uses": ["open-policy-agent/setup-opa@v2.4.0", "opa check", "opa test"],
+	"ci_uses": ["open-policy-agent/setup-opa@v2.4.0", "opa check", "opa test", "data.kellerai.oss.trust_dial.decision"],
 	"policy_digest": "",
 }
 
