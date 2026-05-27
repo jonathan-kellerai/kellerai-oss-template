@@ -236,8 +236,8 @@ Every pulse run that produces a non-`"clear"` verdict appends a record to
 The record carries the full `result` structure plus the git SHA at the time
 of the run plus the mode (`live`, `audit`, or `predict`).
 As with the trust-dial trace, the file is append-only so tamper attempts are
-visible in the diff, and GitHub Actions publishes the per-run `verdict.json`
-+ `pr-comment.md` + `opa-input.json` as workflow artifacts for redundancy.
+visible in the diff, and GitHub Actions publishes the per-run `verdict.json`,
+`pr-comment.md`, and `opa-input.json` as workflow artifacts for redundancy.
 
 ### Invoking the pulse — `scripts/pulse.sh`
 

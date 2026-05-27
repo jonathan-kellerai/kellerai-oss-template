@@ -51,6 +51,7 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
+          mkdir -p "${GITHUB_WORKSPACE}/.pulse-out"
           # Ensure the base ref is fetched (actions/checkout with fetch-depth:0
           # gives us full history but origin/<base_ref> is not always a local
           # tracking ref — refresh it).
