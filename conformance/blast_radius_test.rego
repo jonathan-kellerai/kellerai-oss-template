@@ -77,13 +77,16 @@ test_br001_clears_when_all_actions_done if {
 # ---------------------------------------------------------------------------
 
 test_br002_fires_on_artifact_types_subtarget if {
+	# BR-002 is verifiable=false — it fires but downgrades from error to
+	# warning. Verdict is "owed" (advisory), not "blocked".
 	result := blast_radius.result with input as _input(
 		["conformance/data.json"],
 		{"conformance/data.json": ["schema.artifact_types"]},
 		[],
 	)
 	"BR-002-artifact-types-triplicate" in _fired_ids(result)
-	result.verdict == "blocked"
+	result.verdict == "owed"
+	result.errors == 0
 }
 
 test_br002_does_not_fire_on_unrelated_subtarget if {
@@ -115,13 +118,16 @@ test_br002_clears_when_all_actions_done if {
 # ---------------------------------------------------------------------------
 
 test_br003_fires_on_required_files_change if {
+	# BR-003 is verifiable=false — bootstrap smoke test is not auto-checked.
+	# Fires as a warning; verdict is "owed".
 	result := blast_radius.result with input as _input(
 		["conformance/data.json"],
 		{"conformance/data.json": ["schema.required_files"]},
 		[],
 	)
 	"BR-003-required-files" in _fired_ids(result)
-	result.verdict == "blocked"
+	result.verdict == "owed"
+	result.errors == 0
 }
 
 test_br003_clears_when_all_actions_done if {
@@ -189,11 +195,14 @@ test_br005_clears_when_actions_done if {
 # ---------------------------------------------------------------------------
 
 test_br006_fires_on_new_rego if {
+	# BR-006 is verifiable=false — OPA coverage parsing is fragile, so the
+	# entry is advisory. Fires as a warning; verdict is "owed".
 	result := blast_radius.result with input as _input(
 		["conformance/new_policy.rego"], {}, [],
 	)
 	"BR-006-new-rego-policy" in _fired_ids(result)
-	result.verdict == "blocked"
+	result.verdict == "owed"
+	result.errors == 0
 }
 
 test_br006_clears_when_actions_done if {
@@ -214,11 +223,14 @@ test_br006_clears_when_actions_done if {
 # ---------------------------------------------------------------------------
 
 test_br007_fires_on_trust_dial_edit if {
+	# BR-007 is verifiable=false; BR-006 (also matches conformance/*.rego)
+	# is also verifiable=false. Both fire as warnings; verdict is "owed".
 	result := blast_radius.result with input as _input(
 		["conformance/trust_dial.rego"], {}, [],
 	)
 	"BR-007-trust-dial-manifest" in _fired_ids(result)
-	result.verdict == "blocked"
+	result.verdict == "owed"
+	result.errors == 0
 }
 
 test_br007_clears_when_actions_done if {
@@ -343,9 +355,95 @@ test_result_carries_alternatives if {
 }
 
 test_result_carries_rationale if {
-	# conformance/conformance.rego matches BR-001 AND BR-006 — 2 fired, 2 errors.
+	# conformance/conformance.rego matches BR-001 (verifiable=true error) AND
+	# BR-006 (verifiable=false error → counted as warning). 2 fired, 1 error,
+	# 1 warning, verdict blocked.
 	result := blast_radius.result with input as _input(
 		["conformance/conformance.rego"], {}, [],
 	)
-	result.rationale == "changed=1 fired=2 errors=2 warnings=0 -> blocked"
+	result.rationale == "changed=1 fired=2 errors=1 warnings=1 -> blocked"
+}
+
+# ---------------------------------------------------------------------------
+# Verifiable/unverifiable split — Option-D verdict semantics.
+#
+# Only a fired entry that is BOTH severity=="error" AND verifiable==true with
+# owed_count > 0 counts as an error. Everything else with owed_count > 0
+# (severity=="warning" OR verifiable==false) counts as a warning. The verdict
+# blocks only on errors.
+# ---------------------------------------------------------------------------
+
+# Positive: a verifiable=true error with owed > 0 BLOCKS.
+# CLAUDE.md edit fires BR-005 (severity=error, verifiable=true). One owed
+# action remains → blocked.
+test_verifiable_error_with_owed_blocks if {
+	result := blast_radius.result with input as _input(
+		["CLAUDE.md"], {}, [],
+	)
+	"BR-005-claude-md" in _fired_ids(result)
+	result.verdict == "blocked"
+	result.errors == 1
+}
+
+# Negative: a verifiable=false error with owed > 0 does NOT block — it
+# downgrades to a warning. conformance/data.json with the artifact_types
+# sub-target fires BR-002 alone (severity=error, verifiable=false). Verdict
+# must be "owed", not "blocked".
+test_unverifiable_error_with_owed_does_not_block if {
+	result := blast_radius.result with input as _input(
+		["conformance/data.json"],
+		{"conformance/data.json": ["schema.artifact_types"]},
+		[],
+	)
+	"BR-002-artifact-types-triplicate" in _fired_ids(result)
+	result.verdict == "owed"
+	result.errors == 0
+	result.warnings == 1
+	blast_radius.allow with input as _input(
+		["conformance/data.json"],
+		{"conformance/data.json": ["schema.artifact_types"]},
+		[],
+	)
+}
+
+# Cleared: a verifiable=true error with all actions footer-DONE has
+# owed_count == 0 and does NOT block (verdict clear). CLAUDE.md edit with
+# the three BR-005 actions DONE.
+test_verifiable_error_cleared_when_all_actions_done if {
+	result := blast_radius.result with input as _input(
+		["CLAUDE.md"], {},
+		[
+			"BR-005-claude-md-1",
+			"BR-005-claude-md-2",
+			"BR-005-claude-md-3",
+		],
+	)
+	"BR-005-claude-md" in _fired_ids(result)
+	result.verdict == "clear"
+	result.errors == 0
+}
+
+# Fired record carries the verifiable flag — downstream consumers (the
+# pulse.sh PR comment, audit/blast-radius.jsonl) need to render it.
+test_fired_record_carries_verifiable_field if {
+	result := blast_radius.result with input as _input(
+		["CLAUDE.md"], {}, [],
+	)
+	some f in result.fired
+	f.id == "BR-005-claude-md"
+	f.verifiable == true
+}
+
+# A mixed diff: one verifiable=true error (BR-005) AND one verifiable=false
+# error (BR-002 via sub-target). Verdict is blocked from the verifiable error
+# alone; the unverifiable error counts as a warning.
+test_mixed_verifiable_and_unverifiable_errors if {
+	result := blast_radius.result with input as _input(
+		["CLAUDE.md", "conformance/data.json"],
+		{"conformance/data.json": ["schema.artifact_types"]},
+		[],
+	)
+	result.verdict == "blocked"
+	result.errors == 1
+	result.warnings == 1
 }

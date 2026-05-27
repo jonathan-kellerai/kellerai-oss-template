@@ -7,7 +7,8 @@
       "affects": "Array of globs that must be checked / updated when when_changed fires.",
       "required_actions": "Ordered, imperative, single-sentence strings. The author of the change must mark each as DONE in the commit message footer (Pulse-Action: <id> DONE) or the pre-commit hook rejects.",
       "reason": "One-sentence rationale that ends up in the PR comment.",
-      "severity": "'error' blocks; 'warning' reports."
+      "severity": "'error' blocks; 'warning' reports. The hard block also requires verifiable: true (see below).",
+      "verifiable": "Boolean. When true, the required_actions for this entry have a deterministic post-condition the pulse engine (or a CI step) can programmatically verify; the entry can BLOCK on owed actions. When false, the required_actions are advisory — owed actions downgrade to a warning even at error severity. See docs/agents/enforcement.md for the per-entry classification."
     },
     "affects": [
       {
@@ -23,7 +24,8 @@
           "update conformance/data.json policy_integrity.expected_digest with the new digest in the same commit",
           "document the new or changed deny family in docs/agents/enforcement.md (rule name, severity, trigger condition)"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": true
       },
       {
         "id": "BR-002-artifact-types-triplicate",
@@ -39,7 +41,8 @@
           "update the artifact_type input description and any per-type matrix entries in .github/workflows/conformance.yml",
           "update conformance/data.json schema.artifact_type_files map with default_dir + primary_validator for the new type"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": false
       },
       {
         "id": "BR-003-required-files",
@@ -55,7 +58,8 @@
           "verify scripts/bootstrap.sh token substitution covers any new tokens introduced in the template",
           "add a CHANGELOG.md entry under a MAJOR version bump describing the new required file"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": false
       },
       {
         "id": "BR-004-agents-md",
@@ -69,7 +73,8 @@
           "verify AGENTS.md line count is <= conformance/data.json:content_assertions.agents_md_max_lines",
           "if raising the cap, update conformance/data.json:content_assertions.agents_md_max_lines and document the rationale in docs/agents/enforcement.md"
         ],
-        "severity": "warning"
+        "severity": "warning",
+        "verifiable": true
       },
       {
         "id": "BR-005-claude-md",
@@ -84,7 +89,8 @@
           "verify CLAUDE.md first non-blank, non-comment line equals conformance/data.json:content_assertions.claude_md_first_content_line",
           "if changing either invariant, update conformance/data.json and document in docs/agents/enforcement.md"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": true
       },
       {
         "id": "BR-006-new-rego-policy",
@@ -101,7 +107,8 @@
           "document the policy package, deny families, and intended scope in docs/agents/enforcement.md",
           "if the policy declares new required-files or content-assertions, add them to conformance/data.json"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": false
       },
       {
         "id": "BR-007-trust-dial-manifest",
@@ -121,7 +128,8 @@
           "mirror the change in template/_files/conformance/trust_dial.rego (and the data + test siblings)",
           "if the state-file schema changes, update audit/trust-dial-state.json and document the migration in docs/agents/enforcement.md"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": false
       },
       {
         "id": "BR-008-templatized-required-file",
@@ -134,7 +142,8 @@
           "if the templatized path is a required file, dry-run bash scripts/bootstrap.sh --out /tmp/pulse-check and confirm the conformance self-check at bootstrap.sh:241-258 still passes",
           "verify any tokens introduced in the template are covered by the substitution list at scripts/bootstrap.sh:182-194"
         ],
-        "severity": "warning"
+        "severity": "warning",
+        "verifiable": false
       },
       {
         "id": "BR-009-conformance-workflow",
@@ -147,7 +156,8 @@
           "document the workflow change in docs/agents/enforcement.md, including the new pinned SHA and the consumer migration path",
           "if the change is breaking (input rename, removed step), bump the MAJOR version in CHANGELOG.md and tag a release"
         ],
-        "severity": "warning"
+        "severity": "warning",
+        "verifiable": false
       },
       {
         "id": "BR-010-scripts-coverage",
@@ -161,7 +171,8 @@
           "review docs/agents/enforcement.md for documentation that references the changed script's invocation",
           "verify shellcheck -x reports no new findings against the changed script"
         ],
-        "severity": "warning"
+        "severity": "warning",
+        "verifiable": true
       },
       {
         "id": "BR-011-affects-manifest",
@@ -178,7 +189,8 @@
           "if adding or renaming a manifest entry, add a positive and a cleared test case in conformance/blast_radius_test.rego",
           "document the new or changed manifest entry in docs/agents/enforcement.md"
         ],
-        "severity": "error"
+        "severity": "error",
+        "verifiable": true
       },
       {
         "id": "BR-012-docs-agents-coverage",
@@ -190,7 +202,8 @@
         "required_actions": [
           "verify the change is consistent with the conventions documented in docs/agents/conventions.md"
         ],
-        "severity": "warning"
+        "severity": "warning",
+        "verifiable": false
       },
       {
         "id": "BR-013-template-coverage",
@@ -202,7 +215,8 @@
         "required_actions": [
           "if the file is templatized into a required-file path, dry-run bash scripts/bootstrap.sh and confirm the self-check still passes (see BR-008)"
         ],
-        "severity": "warning"
+        "severity": "warning",
+        "verifiable": false
       }
     ]
   }

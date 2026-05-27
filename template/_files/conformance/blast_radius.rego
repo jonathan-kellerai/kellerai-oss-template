@@ -150,6 +150,7 @@ fired contains f if {
 		"reason": entry.reason,
 		"required_actions": _required_actions(entry),
 		"severity": entry.severity,
+		"verifiable": object.get(entry, "verifiable", false),
 		"affected_present_in_diff": _affected_present(entry),
 		"affected_missing_from_diff": _affected_missing(entry),
 		"owed_count": _owed_count(entry),
@@ -159,26 +160,47 @@ fired contains f if {
 # ---------------------------------------------------------------------------
 # Surface: aggregate counts
 # ---------------------------------------------------------------------------
+# Verifiable/unverifiable split — an entry's required_actions are "verifiable"
+# when there is a deterministic post-condition the pulse (or CI) can check
+# programmatically. Only verifiable=true error-severity entries with owed
+# actions can BLOCK; verifiable=false errors and warning-severity entries
+# downgrade to warnings (advisory). This keeps the gate honest: a blocked
+# verdict means a machine-checkable invariant is owed, not just an advisory
+# checklist. See docs/agents/enforcement.md for the per-entry classification.
+# An entry is verifiable when entry.verifiable == true (explicit opt-in).
+# Missing field defaults to false (advisory).
+# ---------------------------------------------------------------------------
 
 errors := count([f |
 	some f in fired
 	f.severity == "error"
+	f.verifiable == true
 	f.owed_count > 0
 ])
 
+# Warnings include EVERY fired entry with owed actions that is NOT counted as
+# an error (i.e. severity == "warning" OR verifiable == false). Severity is
+# not the only axis any more — verifiability is the gate; severity is the
+# author's intent. Both must align for a hard block.
 warnings := count([f |
 	some f in fired
-	f.severity == "warning"
 	f.owed_count > 0
+	not _is_error(f)
 ])
+
+_is_error(f) if {
+	f.severity == "error"
+	f.verifiable == true
+}
 
 # ---------------------------------------------------------------------------
 # Surface: verdict
 # ---------------------------------------------------------------------------
 # `clear`   = no entry fired with any owed action.
-# `owed`    = at least one warning-severity entry fired with owed actions; no
-#             error-severity entry has owed actions.
-# `blocked` = at least one error-severity entry fired with owed actions.
+# `owed`    = at least one entry fired with owed actions, but none of them are
+#             both error-severity AND verifiable=true (everything advisory).
+# `blocked` = at least one verifiable=true error-severity entry fired with
+#             owed actions.
 # ---------------------------------------------------------------------------
 
 default verdict := "clear"
