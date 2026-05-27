@@ -8,3 +8,11 @@ pre-commit:
       run: opa test conformance/
     sanitization:
       run: bash scripts/check-sanitization.sh
+
+commit-msg:
+  commands:
+    blast-radius-pulse:
+      run: bash scripts/pulse.sh --mode live --commit-msg-file {1}
+      skip:
+        - merge
+        - rebase

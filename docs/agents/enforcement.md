@@ -89,3 +89,204 @@ gates, so the hook is not the sole line of defence.
 `README.md` and `CONTRIBUTING.md` are downstream of `docs/agents/`. A reviewer
 who sees a convention stated in `README.md` but not in `docs/agents/` should
 treat `docs/agents/` as authoritative and flag the discrepancy.
+
+## The trust-dial policy
+
+`conformance/trust_dial.rego` is a second OPA policy that lives next to the
+structural `conformance.rego`.
+It governs Dependabot auto-merge decisions and is a **pure function** over
+three inputs:
+a Dependabot PR descriptor (`input`), the verdict matrix (`data.trust_dial.verdict_matrix`),
+and the per-cycle budget (`data.trust_dial.budget`).
+
+- **Package:** `kellerai.oss.trust_dial`.
+- **Sibling data:** `conformance/trust_dial_data.json` carries the
+  `(tier × ecosystem × update_type)` verdict matrix plus the
+  `max_auto_merges_per_cycle` budget.
+- **Sibling tests:** `conformance/trust_dial_test.rego` exercises every cell in
+  the matrix plus the fail-safe default; `opa test conformance/` proves the
+  policy is deterministic.
+- **Surfaces:** `verdict` (one of `"auto-merge"`, `"hold-for-review"`,
+  `"block"`), `rationale` (a single string written verbatim into the decision
+  trace), and `decision` (the full record carrying the four whitepaper fields:
+  `inputs`, `rule_applied`, `alternatives`, `rationale`).
+- **Fail-safe default:** `verdict := "hold-for-review"`.
+  The policy never auto-merges by omission — the matrix must explicitly opt in.
+- **Budget gate:** an `auto-merge` base verdict downgrades to
+  `hold-for-review` once the cycle budget is exhausted
+  (`input.cycle_merge_count >= _budget.max_auto_merges_per_cycle`).
+
+### `trust_dial_wired` deny family
+
+The structural policy (`conformance/conformance.rego:246-257`) carries a
+companion deny family that fires when the trust-dial gate workflow exists in
+the repo but no CI step actually evaluates the policy.
+
+- **Rule name:** `trust_dial_wired`.
+- **Severity:** `error` (blocks CI).
+- **Trigger:** `data.trust_dial_manifest.gate_workflow` is set, that workflow
+  file is present in `input.files`, and no line in `input.ci_uses` contains
+  the string `data.kellerai.oss.trust_dial`.
+- **Intent:** prevent a repo from merely *containing* the gate workflow
+  without wiring it — the workflow file must be referenced from a real CI
+  step that evaluates the verdict policy.
+  This closes the bypass of "the file exists, looks like enforcement, but
+  nothing runs it."
+
+### Audit trail — `audit/decision-trace.jsonl`
+
+Every trust-dial decision is appended to `audit/decision-trace.jsonl`
+(JSON-Lines, one record per line, append-only).
+Each record is the full `decision` surface from the policy plus a timestamp
+and the Dependabot PR id.
+The file is intentionally append-only so that a tamper attempt is visible in
+the next commit's diff.
+GitHub Actions also publishes the same record as a per-run artifact, giving
+the auditor two redundant copies.
+
+## The blast-radius pulse
+
+`conformance/blast_radius.rego` is the third OPA policy: a deterministic
+function that computes the blast radius of a candidate change set.
+It enforces the cross-file invariants the structural policy cannot express on
+its own.
+
+- **Package:** `kellerai.oss.blast_radius`.
+- **Sibling data:** `conformance/affects.json` declares one entry per
+  blast-radius rule (`BR-001` through `BR-013` at the time of writing).
+  Each entry carries a `when_changed` glob, an `affects` glob list, a list of
+  `required_actions`, a `severity` (`error` or `warning`), and a
+  `verifiable` flag (see below).
+- **Sibling tests:** `conformance/blast_radius_test.rego` exercises every
+  entry plus the verifiable/unverifiable split plus the determinism property.
+- **Surfaces:** `fired` (the set of entries whose `when_changed` matched a
+  path in the diff), `errors` / `warnings` (aggregate counts under the
+  verifiable split), `verdict` (one of `"clear"`, `"owed"`, `"blocked"`),
+  `allow` (boolean — true when verdict is not `"blocked"`), and `result` (the
+  full record carrying the four whitepaper fields).
+
+### The verifiable / unverifiable split
+
+The `verifiable` field on each `affects.json` entry distinguishes a
+**machine-checkable post-condition** (`verifiable: true`) from an
+**advisory checklist** (`verifiable: false`).
+The verdict logic at `conformance/blast_radius.rego:163-202` is:
+
+- An entry counts as an **error** only when it is *both*
+  `severity == "error"` *and* `verifiable == true` *and* has owed actions.
+  Only such entries trigger a `blocked` verdict.
+- Every other fired entry with owed actions counts as a **warning**:
+  warning-severity entries, *and* error-severity entries whose actions are
+  advisory (`verifiable: false`).
+- `verdict == "blocked"` iff `errors > 0`;
+  `verdict == "owed"` iff `errors == 0 ∧ warnings > 0`;
+  `verdict == "clear"` iff nothing is owed.
+
+This keeps the gate honest:
+a `blocked` verdict always corresponds to a deterministic post-condition the
+pulse (or the CI step) can verify, never to a footer ack the author may have
+typed but not actually performed.
+Advisory rules stay surfaced as warnings so the author still sees them,
+but they cannot block on the strength of a missing footer alone.
+
+The current per-entry classification:
+
+| Entry | Severity | Verifiable | Why |
+|-------|----------|------------|-----|
+| `BR-001-conformance-rego` | error | true | The SHA-256 digest match against `data.policy_integrity.expected_digest` is deterministic and re-runnable. |
+| `BR-002-artifact-types-triplicate` | error | false | The triplicate parity is implicit — no explicit post-condition exists yet. |
+| `BR-003-required-files` | error | false | A new required-file is only validated by running the bootstrap smoke test. |
+| `BR-004-agents-md` | warning | true | `wc -l AGENTS.md` against the configured cap is deterministic. |
+| `BR-005-claude-md` | error | true | Line count and first-content-line are both deterministic OPA assertions already in the structural policy. |
+| `BR-006-new-rego-policy` | error | false | OPA coverage parsing is fragile; the test-existence check is advisory. |
+| `BR-007-trust-dial-manifest` | error | false | The mirror validity between the canonical policy and the templatized mirror is implicit — no programmatic equality check yet. |
+| `BR-008-templatized-required-file` | warning | false | Requires a bootstrap smoke test. |
+| `BR-009-conformance-workflow` | warning | false | The workflow-contract change is implicit (no schema for the contract). |
+| `BR-010-scripts-coverage` | warning | true | A grep of `docs/agents/enforcement.md` for the changed script's name is deterministic. |
+| `BR-011-affects-manifest` | error | true | Test-coverage for the new manifest entry is grep-able. |
+| `BR-012-docs-agents-coverage` | warning | false | Tier-2 prose changes have no deterministic post-condition. |
+| `BR-013-template-coverage` | warning | false | Templatized-scaffold reachability requires a bootstrap self-check. |
+
+Adding a new entry to `affects.json` requires the author to make the
+verifiable classification explicit.
+The default (missing field) is `false` — i.e. opt in by writing
+`"verifiable": true` only when a deterministic post-condition exists.
+
+### `affects_manifest_complete` deny family
+
+The structural policy (`conformance/conformance.rego:299-313`) carries a
+companion deny family that fires when a file under the **pulse scope** is not
+reachable from any `affects.json` entry.
+
+- **Rule name:** `affects_manifest_complete`.
+- **Severity:** `error` (blocks CI).
+- **Trigger:** a path in `input.files` falls under one of the pulse-scope
+  prefixes (`conformance/`, `template/`, `scripts/`, `docs/agents/`), the
+  affects manifest is non-empty, and the path is not reachable from any
+  entry's `when_changed` glob or `affects` glob.
+- **Intent:** an unreachable file is a silent gap — the pulse is only honest
+  when the manifest is complete.
+  This rule guarantees that every tracked file in the pulse scope has at
+  least one manifest entry it can fire against.
+
+### Audit trail — `audit/blast-radius.jsonl`
+
+Every pulse run that produces a non-`"clear"` verdict appends a record to
+`audit/blast-radius.jsonl` (JSON-Lines, one record per line, append-only).
+The record carries the full `result` structure plus the git SHA at the time
+of the run plus the mode (`live`, `audit`, or `predict`).
+As with the trust-dial trace, the file is append-only so tamper attempts are
+visible in the diff, and GitHub Actions publishes the per-run `verdict.json`
++ `pr-comment.md` + `opa-input.json` as workflow artifacts for redundancy.
+
+### Invoking the pulse — `scripts/pulse.sh`
+
+`scripts/pulse.sh` is the lefthook + CI entry point.
+It wraps `opa eval data.kellerai.oss.blast_radius.result` with the same
+preflight discipline as `scripts/bootstrap.sh`.
+
+| Mode | Invocation | Reads diff from |
+|------|------------|-----------------|
+| `live` (default) | `bash scripts/pulse.sh` | `git diff --name-only --cached` |
+| `audit` | `bash scripts/pulse.sh --mode audit --diff-range origin/main...HEAD` | the given range |
+| `predict` | `bash scripts/pulse.sh --predict path1 path2` | the explicit positional file list |
+
+Exit codes:
+
+- `0` — verdict is `clear` or `owed` (warnings only or no fire).
+- `1` — verdict is `blocked` (at least one verifiable=true error has owed actions).
+- `2` — `opa eval` failed, manifest invalid, or preflight check failed.
+
+Outputs (written under `--output-dir`, default cwd):
+
+- `opa-input.json` — the exact input passed to `opa eval`.
+- `opa-eval.stdout` / `opa-eval.stderr` — the raw OPA output.
+- `verdict.json` — the parsed `result` record.
+- `pulse-report.txt` — the human-readable report (audit mode only).
+- `pr-comment.md` — the PR-comment-ready Markdown report (audit mode only).
+
+### The `Pulse-Action:` commit footer
+
+Owed actions clear in two ways:
+
+1. **The diff already touched the affected file.** The pulse engine already
+   sees this through `affected_present_in_diff` — no footer is required.
+2. **The author asserts an action is done.** The author appends a line to the
+   commit message in the form:
+
+   ```text
+   Pulse-Action: BR-001-conformance-rego-1 DONE
+   Pulse-Action: BR-001-conformance-rego-2 DONE
+   ```
+
+   The id is the entry id plus a 1-based action index.
+   `scripts/pulse.sh` parses these lines from the commit-message file passed
+   via `--commit-msg-file` and feeds them into the policy as
+   `input.commit_footer_actions_done`.
+   The policy then decrements `owed_count` for each acked action.
+
+The footer convention applies only to entries with `verifiable: false`, where
+no programmatic check exists.
+For `verifiable: true` entries the structural policy or a dedicated CI step
+re-verifies the post-condition independently — the footer is informational
+only, never the sole source of truth.
