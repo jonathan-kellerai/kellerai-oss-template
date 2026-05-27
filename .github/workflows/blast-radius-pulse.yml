@@ -56,10 +56,12 @@ jobs:
           # gives us full history but origin/<base_ref> is not always a local
           # tracking ref — refresh it).
           git fetch --no-tags --prune origin "$BASE_REF"
+          git log --pretty=format:'%B%n' "origin/${BASE_REF}..HEAD" > "${GITHUB_WORKSPACE}/.pulse-out/pr-messages.txt"
           bash scripts/pulse.sh \
             --mode audit \
             --diff-range "origin/${BASE_REF}...HEAD" \
             --output-dir "${GITHUB_WORKSPACE}/.pulse-out" \
+            --commit-msg-file "${GITHUB_WORKSPACE}/.pulse-out/pr-messages.txt" \
             --json > "${GITHUB_WORKSPACE}/.pulse-out/result.json" || pulse_exit=$?
           pulse_exit="${pulse_exit:-0}"
           echo "exit_code=${pulse_exit}" >> "$GITHUB_OUTPUT"
