@@ -7,8 +7,15 @@ permissions:
   contents: read
 
 jobs:
+  # Dev-sync PRs (head ref `main`, base ref a long-lived `dev` branch) propagate
+  # commits that already passed validation when they landed on main via the
+  # standard PR flow. Re-validating them on the sync PR re-checks any historical
+  # non-conforming commit (e.g. early grandfathered or pre-policy commits),
+  # which would otherwise block the sync. Skip this job when the PR is a dev
+  # sync; everything else is validated normally.
   commitlint:
     name: Validate commit messages (Conventional Commits)
+    if: github.event.pull_request.head.ref != 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

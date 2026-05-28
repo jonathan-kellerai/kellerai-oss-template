@@ -16,3 +16,22 @@ commit-msg:
       skip:
         - merge
         - rebase
+
+pre-push:
+  parallel: true
+  commands:
+    block-beads-paths:
+      # Beads (.beads/, .dolt/) and the credential key are local-only state.
+      # Even though .gitignore covers them, force-add or .gitignore drift could
+      # let them slip into a commit. Reject any push containing those paths.
+      run: |
+        set -euo pipefail
+        BLOCKED=$(git diff --name-only "$(git merge-base HEAD @{upstream} 2>/dev/null || git hash-object -t tree --stdin </dev/null)" HEAD -- '.beads/**' '.dolt/**' '.beads-credential-key' | head -5)
+        if [ -n "$BLOCKED" ]; then
+          echo "ERROR: refusing to push commits that touch beads/dolt local-only state:"
+          printf '  %s\n' $BLOCKED
+          echo ""
+          echo "Beads state is LOCAL ONLY. Run \`git rm --cached <path>\` for any tracked beads file,"
+          echo "verify .gitignore is intact, and push again."
+          exit 1
+        fi
