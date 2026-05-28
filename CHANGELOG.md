@@ -18,6 +18,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `docs/claude-settings.template.json`, and a "Capability Roster" section in
   `AGENTS.md`. All are TIER-2/TIER-3 — no new conformance-required file is added.
 
+### Changed
+
+- `scripts/publish.sh` — add a `gh` preflight (binary presence + auth status)
+  that runs in both dry-run and `--confirm` paths so missing tooling surfaces
+  before any gate has passed; pass `--accept-visibility-change-consequences`
+  on the public-visibility flip so the script no longer requires interactive
+  confirmation.
+
+### Security
+
+- Pin third-party GitHub Actions to immutable commit SHAs across
+  `.github/workflows/ci.yml` (4× `actions/checkout`, 1× `open-policy-agent/setup-opa`)
+  and `.github/workflows/commitlint.yml` (1× `actions/checkout`). Resolved:
+  `actions/checkout` v4.2.2 → `11bd71901bbe5b1630ceea73d27597364c9af683`;
+  `open-policy-agent/setup-opa` v2.4.0 → `b2b258e089860efaadaaf71bf6e3aecb4a3eeff1`.
+  Closes the upstream-tag-overwrite vector for CI.
+
 ## [3.0.0] - 2026-05-22
 
 ### Added (BREAKING — new required files and a new error-severity deny family)
