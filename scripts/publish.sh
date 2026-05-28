@@ -94,6 +94,21 @@ esac
 [ "$err" -eq 0 ] || { usage; exit 2; }
 
 # ---------------------------------------------------------------------------
+# Preflight tool checks
+# ---------------------------------------------------------------------------
+# gh must be present and authenticated before any mutating step runs.
+# These checks are intentionally unconditional (run in dry-run AND --confirm)
+# so the user learns about the gap before all gates have passed.
+command -v gh >/dev/null 2>&1 || {
+    echo "publish: ABORT — gh is required (https://cli.github.com)" >&2
+    exit 1
+}
+gh auth status >/dev/null 2>&1 || {
+    echo "publish: ABORT — gh is not authenticated (run: gh auth login)" >&2
+    exit 1
+}
+
+# ---------------------------------------------------------------------------
 # Resolve paths
 # ---------------------------------------------------------------------------
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -292,7 +307,7 @@ echo
 # Step 2: If the requested visibility is 'public', flip it now.
 if [ "$visibility" = "public" ]; then
     echo "Step 2: set repository visibility to public"
-    run_cmd gh repo edit "$repo" --visibility public
+    run_cmd gh repo edit "$repo" --visibility public --accept-visibility-change-consequences
 else
     echo "Step 2: skipped — visibility is already 'private' (requested)"
 fi
