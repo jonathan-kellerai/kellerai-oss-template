@@ -25,6 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   before any gate has passed; pass `--accept-visibility-change-consequences`
   on the public-visibility flip so the script no longer requires interactive
   confirmation.
+- `.github/workflows/commitlint.yml`: skip commit-message validation on dev-sync PRs (where
+  `github.event.pull_request.head.ref == 'main'`). These PRs propagate commits that already
+  passed validation when they landed on main via the standard PR flow; re-validating them would
+  block dev-sync on historical grandfathered commits (e.g. `2f6312b` `bd:` typo before the
+  type-enum was enforced).
+- `lefthook.yml`: new `pre-push` `block-beads-paths` command rejects any push touching
+  `.beads/`, `.dolt/`, or `.beads-credential-key`. Defense-in-depth — `.gitignore` already
+  covers these, but a force-add or a `.gitignore` drift could let them slip into a commit.
 
 ### Security
 
