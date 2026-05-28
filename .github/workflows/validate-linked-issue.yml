@@ -35,10 +35,19 @@ jobs:
             }
             const issueRef = m[1];
 
-            // Linear path: if LINEAR_API_KEY is configured and key is Linear-style, defer.
+            // Linear path: LINEAR_API_KEY is set but Linear API validation is not implemented.
+            // FAIL CLOSED — we refuse to silently pass an unvalidated Linear issue.
+            // To fix: either remove the LINEAR_API_KEY secret (falls back to GitHub Issues path)
+            // or extend this workflow to query the Linear GraphQL API and check issue state
+            // + required labels before allowing merge.
             const linearKey = process.env.LINEAR_API_KEY;
             if (linearKey && /^[A-Z]+-\d+$/.test(issueRef)) {
-              core.info(`Linear issue ${issueRef} detected. Configure the linear-issue-gate action for full Linear validation (see docs/branch-governance.md).`);
+              core.setFailed(
+                `Linear validation is unimplemented for issue ${issueRef}. ` +
+                `Either remove the LINEAR_API_KEY secret to fall back to GitHub Issues validation, ` +
+                `or extend this workflow to query the Linear API (check issue state == open and ` +
+                `required label/approval) before this check can pass.`
+              );
               return;
             }
 

@@ -14,7 +14,12 @@
       ".gitignore",
       ".markdownlint-cli2.yaml",
       "commitlint.config.js",
-      "lefthook.yml"
+      "lefthook.yml",
+      "conformance/affects.json",
+      "conformance/blast_radius.rego",
+      "conformance/blast_radius_test.rego",
+      "audit/blast-radius.jsonl",
+      "docs/adr/ADR-002-blast-radius-pulse.md"
     ],
     "required_dirs": [
       ".github",
@@ -22,7 +27,8 @@
       ".github/ISSUE_TEMPLATE",
       "docs",
       "docs/agents",
-      "scripts"
+      "scripts",
+      "audit"
     ],
     "required_github_files": [
       ".github/CODEOWNERS",
@@ -34,7 +40,11 @@
       ".github/ISSUE_TEMPLATE/config.yml",
       ".github/workflows/validate-branch-name.yml",
       ".github/workflows/validate-branch-tier.yml",
-      ".github/workflows/validate-linked-issue.yml"
+      ".github/workflows/validate-linked-issue.yml",
+      ".github/workflows/trust-dial-gate.yml",
+      ".github/workflows/trust-dial-outcome.yml",
+      ".github/workflows/blast-radius-pulse.yml",
+      ".github/workflows/blast-radius-outcome.yml"
     ],
     "required_agent_docs": [
       "docs/agents/conventions.md",
@@ -43,7 +53,8 @@
       "docs/agents/enforcement.md"
     ],
     "required_scripts": [
-      "scripts/check-sanitization.sh"
+      "scripts/check-sanitization.sh",
+      "scripts/pulse.sh"
     ],
     "artifact_types": [
       "json-schema",
@@ -89,6 +100,24 @@
   },
   "policy_integrity": {
     "algorithm": "sha256",
-    "expected_digest": "c781ea87fa61173f2cf1651d29c5246f111f54044bff30495cd5e34c52bf3c61"
+    "expected_digest": "c71bce43c79439e52526ad85ba34aa2238e230ec624d03718098d0416a41a38b"
+  },
+  "trust_dial_manifest": {
+    "verdict_policy": "conformance/trust_dial.rego",
+    "verdict_data": "conformance/trust_dial_data.json",
+    "state_file": "audit/trust-dial-state.json",
+    "decision_trace": "audit/decision-trace.jsonl",
+    "gate_workflow": ".github/workflows/trust-dial-gate.yml",
+    "outcome_workflow": ".github/workflows/trust-dial-outcome.yml",
+    "default_tier": "Observed"
+  },
+  "blast_radius_manifest": {
+    "policy": "conformance/blast_radius.rego",
+    "manifest": "conformance/affects.json",
+    "test_suite": "conformance/blast_radius_test.rego",
+    "trace": "audit/blast-radius.jsonl",
+    "gate_workflow": ".github/workflows/blast-radius-pulse.yml",
+    "outcome_workflow": ".github/workflows/blast-radius-outcome.yml",
+    "scope_dirs": ["conformance/", "template/", "scripts/", "docs/agents/"]
   }
 }

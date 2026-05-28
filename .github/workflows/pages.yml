@@ -3,6 +3,7 @@ name: Deploy docs to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore: ['audit/**']
   workflow_dispatch:
 
 # Only one Pages deploy may run at a time; do not cancel in-progress deploys.
@@ -22,15 +23,25 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # pin to SHA before release
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5  # pin to SHA before release
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5
+
+      # Converts docs/*.md → _site/ (full HTML site with index.html at /).
+      # Source is docs/; Jekyll reads docs/_config.yml for theme and metadata.
+      # Output goes to the default _site/ directory which the upload step consumes.
+      - name: Build Jekyll site
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697  # v1.0.13
+        with:
+          source: ./docs
+          destination: ./_site
 
       - name: Upload docs artifact
-        uses: actions/upload-pages-artifact@v3  # pin to SHA before release
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3
         with:
-          path: docs
+          # _site/ is the Jekyll output; raw docs/ no longer uploaded directly.
+          path: _site
 
   deploy:
     name: Deploy to GitHub Pages
@@ -43,4 +54,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4  # pin to SHA before release
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4

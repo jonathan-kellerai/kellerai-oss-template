@@ -19,6 +19,8 @@ _content := data.content_assertions
 
 _integrity := data.policy_integrity
 
+_trust_dial := data.trust_dial_manifest
+
 # ---------------------------------------------------------------------------
 # Input shortcuts (the repo-structure.json snapshot)
 # ---------------------------------------------------------------------------
@@ -236,6 +238,29 @@ _validator_referenced(validator) if {
 	contains(line, validator)
 }
 
+# -- the trust-dial gate must be wired into a CI workflow ------------------
+# Whitepaper enforcement: a repo may not merely *contain* the gate workflow,
+# it must *wire* it (a CI step evaluates data.kellerai.oss.trust_dial.*).
+# Reuses the input.ci_uses aggregation already populated by
+# scan-repo-structure.sh (the same mechanism primary_validator_wired uses).
+deny contains entry if {
+	_present(_trust_dial, "gate_workflow")
+	gate := _trust_dial.gate_workflow
+	gate in _paths
+	not _ci_references("data.kellerai.oss.trust_dial")
+	entry := {
+		"rule": "trust_dial_wired",
+		"severity": "error",
+		"field": gate,
+		"msg": "trust-dial gate workflow present but no CI step evaluates the verdict policy (expected data.kellerai.oss.trust_dial reference in .github/workflows)",
+	}
+}
+
+_ci_references(needle) if {
+	some line in input.ci_uses
+	contains(line, needle)
+}
+
 # -- policy self-integrity: the live policy digest must match the manifest --
 # Only enforced when a digest was captured (i.e. the scanned repo carries the
 # policy file). Consumer repos that call the centralized workflow have no
@@ -262,6 +287,66 @@ deny contains entry if {
 		"field": "data.policy_integrity.expected_digest",
 		"msg": "policy integrity manifest missing: data.policy_integrity.expected_digest must be present",
 	}
+}
+
+# -- affects manifest must cover every tracked file in pulse scope ----------
+# The blast-radius pulse is only honest if the manifest is complete: an
+# unreachable file is a silent gap. This rule asserts that every tracked file
+# under the in-scope directories (conformance/, template/, scripts/, docs/agents/)
+# is reachable from at least one conformance/affects.json entry — either as a
+# when_changed match or as an affects match. The manifest is loaded via the
+# `data.blast_radius.affects` JSON document (conformance/affects.json).
+deny contains entry if {
+	some path in _paths
+	_in_pulse_scope(path)
+	count(data.blast_radius.affects) > 0
+	not _reachable_from_affects(path)
+	entry := {
+		"rule": "affects_manifest_complete",
+		"severity": "error",
+		"field": path,
+		"msg": sprintf(
+			"file %v is in pulse scope but is not reachable from any conformance/affects.json entry — add a when_changed or affects glob that covers it",
+			[path],
+		),
+	}
+}
+
+_in_pulse_scope(path) if startswith(path, "conformance/")
+
+_in_pulse_scope(path) if startswith(path, "template/")
+
+_in_pulse_scope(path) if startswith(path, "scripts/")
+
+_in_pulse_scope(path) if startswith(path, "docs/agents/")
+
+_reachable_from_affects(path) if {
+	some entry in data.blast_radius.affects
+	_affects_glob_match(_affects_strip_subtarget(entry.when_changed), path)
+}
+
+_reachable_from_affects(path) if {
+	some entry in data.blast_radius.affects
+	some pattern in entry.affects
+	_affects_glob_match(pattern, path)
+}
+
+_affects_strip_subtarget(pattern) := before if {
+	contains(pattern, "#")
+	before := split(pattern, "#")[0]
+}
+
+_affects_strip_subtarget(pattern) := pattern if {
+	not contains(pattern, "#")
+}
+
+_affects_glob_match(pattern, path) if {
+	glob.match(pattern, ["/"], path)
+}
+
+_affects_glob_match(pattern, path) if {
+	not contains(pattern, "*")
+	pattern == path
 }
 
 # ---------------------------------------------------------------------------

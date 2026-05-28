@@ -16,3 +16,12 @@ node_modules/
 
 # Temporary files
 *.tmp
+
+# Beads / Dolt files (local-only tracker — never committed)
+.beads/
+.dolt/
+*.db
+.beads-credential-key
+
+# Spec-workflow & review artifacts — local-only intermediate state, never shipped
+artifacts/

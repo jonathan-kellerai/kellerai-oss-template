@@ -54,6 +54,26 @@ Read the file that answers your question — do not load the whole tree.
 
 Full detail: [`docs/agents/conventions.md`](docs/agents/conventions.md).
 
+## Capability Roster
+
+When a task needs a specialist capability, prefer the canonical plugin for the
+domain. PR review is handled by `keller-pr-review`, a code-review tool run on
+diffs — it is a workflow gate, not a domain capability.
+
+The roster below lists KellerAI's defaults. Adopters can replace any row with
+their own equivalents — the table is a sensible default, not a binding
+contract; remove or substitute rows that don't match your toolchain.
+
+| Domain | Canonical capability | Secondary |
+| ------ | -------------------- | --------- |
+| Session mining | `thoughtbox` | — |
+| Capability analysis | `kellerai-repo-audit` | — |
+| Repo architecture & scaffolding | `kellerai-repo-audit` | `kellerai-skill-creator` |
+| Conformance & policy | `opa-rego` | `kellerai-grc` |
+| CI/CD authoring | `git-workflow-tools` | `beads-workflow` |
+| Governance & traceability | `kellerai-feature-spec` | `thoughtbox` |
+| Documentation | `documentation-audit` | `claude-md-management` |
+
 ## Open questions
 
 List any unresolved architectural questions here.
