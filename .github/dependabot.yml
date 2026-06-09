@@ -4,6 +4,10 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
+    # Bots enter the 4-tier model at the lowest tier (dev) and cascade
+    # dev -> qa -> main, like external contributors. The trust-dial gate
+    # (trust-dial-gate.yml) governs whether each PR auto-merges or holds.
+    target-branch: dev
     schedule:
       interval: weekly
     # Group all Actions updates into a single PR to reduce noise.
