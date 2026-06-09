@@ -17,6 +17,13 @@ Sibling repos call the workflow via `uses:` pinned to a commit SHA. This means
 a policy change in `kellerai-oss-template` only takes effect in a sibling repo
 when the sibling explicitly bumps the SHA — preventing silent policy upgrades.
 
+### Workflow change history
+
+| Date | Classification | Description |
+|------|---------------|-------------|
+| 2026-06-09 | non-breaking | Refreshed internal third-party action SHA pins across all workflow files. In `conformance.yml` and `ci.yml`: `actions/checkout` → `df4cb1c069e1874edd31b4311f1884172cec0e10` (v6.0.3); `open-policy-agent/setup-opa` → `b2b258e089860efaadaaf71bf6e3aecb4a3eeff1` (v2.4.0). In `trust-dial-gate.yml`: `dependabot/fetch-metadata` → `08eff52bf64351f401fb50d4972fa95b9f2c2d1b` (v2.4.0); `actions/upload-artifact` → `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1). The `workflow_call` interface (inputs `artifact_type` and `opa_version`, outputs, and all consumer-visible steps) is **unchanged** — only internal `uses:` pins moved. No consumer migration is required and no major version bump is warranted; consumers pick up the refreshed pins automatically when they next bump the kellerai-oss-template SHA they pin to. Source: `.github/workflows/conformance.yml:44,55,86`, `.github/workflows/ci.yml:24,27`, `.github/workflows/trust-dial-gate.yml:36,37,184`. |
+| 2026-06-09 | deferred | `dependabot/fetch-metadata` v3 major bump deliberately deferred (PR #14). v3 renames the metadata outputs (`update-type`, `package-ecosystem`, etc.) that `trust-dial-gate.yml` consumes at lines 46–50; adopting it requires coordinated changes to the gate workflow and the OPA input-builder step. |
+
 ## Error vs warning severity
 
 | Severity | Blocks CI? | Examples |
