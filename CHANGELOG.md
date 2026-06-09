@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `.github/dependabot.yml`: route Dependabot PRs to `dev` (`target-branch: dev`)
+  instead of the default `main`. Bots now enter the 4-tier branch model at the
+  lowest tier and cascade `dev -> qa -> main`, matching external contributors.
+- `.github/workflows/validate-branch-tier.yml`: allow `dependabot[bot]` (and
+  `dependabot/**` branches) to open PRs into `dev`, alongside the existing
+  CODEOWNER bypass. Resolves the contradiction where `trust-dial-gate.yml`
+  evaluated Dependabot PRs that the tier rule could never let merge.
+- `docs/branch-governance.md`: document that dev-sync PRs (`main -> dev`) must be
+  merged with a merge commit (`gh pr merge --merge`), never squash/rebase, so
+  `dev` stays a true descendant of `main` under the `non_fast_forward` ruleset.
+
+### Fixed
+
+- `.gitignore`: ignore hook-generated OPA scan artifacts (`opa-input.json`,
+  `opa-eval.stdout`, `opa-eval.stderr`, `verdict.json`) so blast-radius /
+  conformance hook byproducts no longer leak into the untracked working set.
+
+## [3.1.0] - 2026-06-09
+
 ### Added
 
 - `scripts/bootstrap_test.sh` — a regression test that bootstraps every artifact
