@@ -25,3 +25,9 @@ node_modules/
 
 # Spec-workflow & review artifacts — local-only intermediate state, never shipped
 artifacts/
+
+# Hook-generated OPA / blast-radius scan artifacts (transient; never shipped)
+/opa-input.json
+/opa-eval.stdout
+/opa-eval.stderr
+/verdict.json

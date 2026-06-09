@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   merged with a merge commit (`gh pr merge --merge`), never squash/rebase, so
   `dev` stays a true descendant of `main` under the `non_fast_forward` ruleset.
 
+### Fixed
+
+- `.gitignore`: ignore hook-generated OPA scan artifacts (`opa-input.json`,
+  `opa-eval.stdout`, `opa-eval.stderr`, `verdict.json`) so blast-radius /
+  conformance hook byproducts no longer leak into the untracked working set.
+
 ## [3.1.0] - 2026-06-09
 
 ### Added
