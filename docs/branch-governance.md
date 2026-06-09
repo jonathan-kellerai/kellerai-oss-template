@@ -75,6 +75,33 @@ Used by `validate-branch-name.yml`:
 ^external/(?:feat|fix|chore|docs|refactor|test|ci|build|perf|revert|style|hotfix|spike|wip|release|rnd)-[A-Z]+-\d+(?:-[a-z][a-z0-9]*)+-p[0-4]$
 ```
 
+## Syncing dev with main
+
+`dev` periodically falls behind `main` (commits reach `main` via the
+`qa -> main` promotion). To resync, open a **sync PR** with `main` as the head
+and `dev` as the base:
+
+```bash
+gh pr create --base dev --head main --title "chore: sync dev with main"
+```
+
+These PRs are exempt from commit-message validation (`commitlint.yml` skips PRs
+whose head ref is `main`), since they replay commits already validated when they
+landed on `main`.
+
+**Merge sync PRs with a merge commit — never squash or rebase:**
+
+```bash
+gh pr merge <n> --merge --admin
+```
+
+The `protect-dev` ruleset sets `non_fast_forward`, so `dev` cannot be
+force-updated to `main`'s tip directly. A **merge commit** preserves `main`'s
+original commit SHAs in `dev`'s history, keeping `dev` a true descendant of
+`main`. A **squash or rebase merge rewrites those commits as new SHAs**, which
+permanently diverges `dev` from `main` and makes every subsequent sync PR
+re-show the same already-synced commits. Always use `--merge` for sync PRs.
+
 ## Gate workflows
 
 Three required-status-check workflows enforce the model.

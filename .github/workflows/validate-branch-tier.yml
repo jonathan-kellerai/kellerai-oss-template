@@ -46,6 +46,12 @@ jobs:
 
           is_maintainer = actor.lower() in codeowners
 
+          # Trusted automation (Dependabot) enters the tier model at dev — the
+          # lowest tier — exactly like an external contributor. The trust-dial
+          # gate (trust-dial-gate.yml) governs auto-merge vs hold-for-review;
+          # promotion/demotion is driven by post-merge CI outcomes.
+          is_bot = actor.lower() == "dependabot[bot]" or head.startswith("dependabot/")
+
           # Tier rules: maps target branch to (allowed-source-pattern, error-message).
           RULES = {
               "main": (r"^qa(/.*)?$",    "PRs into main must come from qa/**"),
@@ -64,8 +70,9 @@ jobs:
               print(f"Tier check passed: {head} -> {base}")
               sys.exit(0)
 
-          if base == "dev" and is_maintainer:
-              print(f"Tier check passed: CODEOWNER '{actor}' may merge directly into dev.")
+          if base == "dev" and (is_maintainer or is_bot):
+              who = "CODEOWNER" if is_maintainer else "trusted bot"
+              print(f"Tier check passed: {who} '{actor}' may open into dev.")
               sys.exit(0)
 
           print(f"::error::{message}")
