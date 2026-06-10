@@ -7,15 +7,17 @@ permissions:
   contents: read
 
 jobs:
-  # Dev-sync PRs (head ref `main`, base ref a long-lived `dev` branch) propagate
-  # commits that already passed validation when they landed on main via the
-  # standard PR flow. Re-validating them on the sync PR re-checks any historical
-  # non-conforming commit (e.g. early grandfathered or pre-policy commits),
-  # which would otherwise block the sync. Skip this job when the PR is a dev
-  # sync; everything else is validated normally.
+  # Dev-sync PRs propagate commits that already passed validation when they
+  # landed on main via the standard PR flow. Re-validating them on the sync PR
+  # re-checks any historical non-conforming commit (e.g. early grandfathered or
+  # pre-policy commits), which would otherwise block the sync. Two patterns reach
+  # this workflow: (1) head ref `main` when histories are linear and the PR can
+  # merge directly, and (2) a `sync/*` conflict-resolution branch when histories
+  # have diverged and a direct head=main PR won't merge cleanly. Both replay
+  # already-validated commits, so commitlint is skipped for both.
   commitlint:
     name: Validate commit messages (Conventional Commits)
-    if: github.event.pull_request.head.ref != 'main'
+    if: github.event.pull_request.head.ref != 'main' && !startsWith(github.event.pull_request.head.ref, 'sync/')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

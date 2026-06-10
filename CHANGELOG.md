@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - CI: bump 7 GitHub Actions to their latest SHA-pinned versions (actions/checkout v6.0.3, download-artifact v8.0.1, upload-artifact v7.0.1, configure-pages v6, upload-pages-artifact v5, deploy-pages v5, github-script v9); pin dependabot/fetch-metadata to a commit SHA at v2.4.0 (was tag-floating). Deferred fetch-metadata v3 (major; renames outputs the trust-dial gate consumes).
+- `.github/workflows/commitlint.yml`: also skip commit-message validation on `sync/*` branches
+  (not just head==`main`), so `main→dev` syncs done via a conflict-resolution branch don't trip
+  on grandfathered commits.
 - `.github/dependabot.yml`: route Dependabot PRs to `dev` (`target-branch: dev`)
   instead of the default `main`. Bots now enter the 4-tier branch model at the
   lowest tier and cascade `dev -> qa -> main`, matching external contributors.
