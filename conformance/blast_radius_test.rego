@@ -219,6 +219,34 @@ test_br006_clears_when_actions_done if {
 }
 
 # ---------------------------------------------------------------------------
+# BR-014 — laas.rego change requires sibling test + conformance doc updates.
+# ---------------------------------------------------------------------------
+
+test_br014_fires_on_laas_rego_change if {
+	# BR-014 is verifiable=false — advisory only. Fires as a warning;
+	# verdict is "owed", not "blocked".
+	result := blast_radius.result with input as _input(
+		["conformance/laas/laas.rego"], {}, [],
+	)
+	"BR-014-laas-conformance-policy" in _fired_ids(result)
+	result.verdict == "owed"
+	result.errors == 0
+}
+
+test_br014_clears_when_actions_done if {
+	result := blast_radius.result with input as _input(
+		["conformance/laas/laas.rego"], {},
+		[
+			"BR-014-laas-conformance-policy-1",
+			"BR-014-laas-conformance-policy-2",
+			"BR-014-laas-conformance-policy-3",
+			"BR-014-laas-conformance-policy-4",
+		],
+	)
+	result.verdict == "clear"
+}
+
+# ---------------------------------------------------------------------------
 # BR-007 — trust_dial.rego edits force matrix + test + template mirror updates.
 # ---------------------------------------------------------------------------
 
