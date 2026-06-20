@@ -7,9 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-06-20
+
+### Added
+
+- LaaS v1.1 action-conformance policy: `conformance/laas/laas.rego` (package
+  `kellerai.laas.actions`) with `conformance/laas/laas_test.rego`, gating
+  individual LLM-agent actions by consequence tier (CT0–CT4) rather than
+  certifying the model at enrollment time.
+- Data-driven obligation registry and CT lattice in `conformance/laas/data.json`;
+  worked CT4-blocked example in
+  `conformance/laas/examples/action.ct4-blocked.json`.
+- Decision-record emitter and backtest harness under `scripts/laas/`:
+  `emitter.py`, `backtest.py`, and `check.sh`.
+- Blast-radius manifest entry `BR-014-laas-conformance-policy` in
+  `conformance/affects.json` plus its sibling test in
+  `conformance/blast_radius_test.rego`.
+- Standard prose `standard/LAAS.md`, usage docs under `docs/laas/`, and a
+  policy section in `docs/agents/enforcement.md`.
+
 ### Changed
 
 - CI: bump 7 GitHub Actions to their latest SHA-pinned versions (actions/checkout v6.0.3, download-artifact v8.0.1, upload-artifact v7.0.1, configure-pages v6, upload-pages-artifact v5, deploy-pages v5, github-script v9); pin dependabot/fetch-metadata to a commit SHA at v2.4.0 (was tag-floating). Deferred fetch-metadata v3 (major; renames outputs the trust-dial gate consumes).
+- `.github/workflows/commitlint.yml`: also skip commit-message validation on `sync/*` branches
+  (not just head==`main`), so `main→dev` syncs done via a conflict-resolution branch don't trip
+  on grandfathered commits.
 - `.github/dependabot.yml`: route Dependabot PRs to `dev` (`target-branch: dev`)
   instead of the default `main`. Bots now enter the 4-tier branch model at the
   lowest tier and cascade `dev -> qa -> main`, matching external contributors.

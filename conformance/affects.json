@@ -217,6 +217,26 @@
         ],
         "severity": "warning",
         "verifiable": false
+      },
+      {
+        "id": "BR-014-laas-conformance-policy",
+        "when_changed": "conformance/laas/laas.rego",
+        "affects": [
+          "conformance/laas/laas_test.rego",
+          "conformance/laas/data.json",
+          "conformance/laas/README.md",
+          "conformance/laas/examples/action.ct4-blocked.json",
+          "docs/agents/enforcement.md"
+        ],
+        "reason": "The LaaS runtime-action conformance policy (conformance/laas/laas.rego, package kellerai.laas.actions) is a sibling policy to conformance.rego. Per BR-006 a new policy must ship a sibling *_test.rego and be documented in docs/agents/enforcement.md; its data-driven obligations (conformance/laas/data.json), README, and the worked CT4-blocked example must stay consistent with the policy.",
+        "required_actions": [
+          "create or update conformance/laas/laas_test.rego with at least one positive and one negative case per obligation",
+          "run `opa test conformance/laas/` and confirm all cases pass",
+          "keep conformance/laas/data.json obligations, conformance/laas/README.md, and conformance/laas/examples/action.ct4-blocked.json consistent with the policy",
+          "document the LaaS policy package, obligation families, and CT classification in docs/agents/enforcement.md"
+        ],
+        "severity": "error",
+        "verifiable": false
       }
     ]
   }
