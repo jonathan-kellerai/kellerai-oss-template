@@ -34,7 +34,9 @@ cat > "$tpl" <<'HTML'
 <title>$title$</title>
 </head>
 <body>
+$include-before$
 $body$
+$include-after$
 </body>
 </html>
 HTML
@@ -49,6 +51,7 @@ for pair in "ieee:laas-ieee" "nist:laas-nist" "iso:laas-iso"; do
 
   [ -f "$md" ] || { echo "error: source not found: $md" >&2; exit 1; }
   [ -f "$themes/$theme.css" ] || { echo "error: theme not found: $themes/$theme.css" >&2; exit 1; }
+  [ -f "$here/covers/$theme-cover.html" ] || { echo "error: cover not found: $here/covers/$theme-cover.html" >&2; exit 1; }
 
   echo "==> $base  (theme: $theme)"
   pandoc "$md" \
@@ -56,6 +59,7 @@ for pair in "ieee:laas-ieee" "nist:laas-nist" "iso:laas-iso"; do
     --to html5 \
     --standalone \
     --template "$tpl" \
+    --include-before-body "$here/covers/$theme-cover.html" \
     --metadata title="$base" \
     --output "$html"
   weasyprint --stylesheet "$themes/$theme.css" "$html" "$pdf"

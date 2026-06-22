@@ -23,6 +23,62 @@
   }
 }
 
+/* ---- Cover page ---------------------------------------------------- */
+@page cover {
+  margin: 0;
+  @top-right { content: none; }
+  @bottom-center { content: none; }
+  @bottom-left { content: none; }
+}
+.laas-cover {
+  page: cover;
+  break-after: page;
+  box-sizing: border-box;
+  min-height: 247mm;
+  padding: 45mm 24mm 26mm;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  hyphens: none;
+}
+.ieee-cover .cover-top {
+  font-size: 9pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555;
+}
+.ieee-cover .cover-desig {
+  margin-top: 6mm;
+  font-size: 13pt;
+  font-weight: bold;
+  color: #00385f;
+}
+.ieee-cover .cover-title {
+  margin-top: 6mm;
+  font-size: 26pt;
+  line-height: 1.16;
+  color: #00385f;
+}
+.ieee-cover .cover-sub {
+  margin-top: 5mm;
+  font-size: 12pt;
+  font-style: italic;
+  color: #333;
+}
+.ieee-cover .cover-meta {
+  margin-top: auto;
+  font-size: 10.5pt;
+  color: #222;
+}
+.ieee-cover .cover-meta div { margin: 1mm 0; }
+.ieee-cover .cover-notice {
+  margin-top: 9mm;
+  border-top: 1px solid #00385f;
+  padding-top: 3mm;
+  font-size: 8pt;
+  color: #777;
+}
+
 html {
   font-family: "STIX Two Text", "Tinos", "Times New Roman", serif;
   font-size: 10pt;

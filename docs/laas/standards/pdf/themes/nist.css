@@ -25,6 +25,60 @@
   }
 }
 
+/* ---- Cover page ---------------------------------------------------- */
+@page cover {
+  margin: 0;
+  @top-left { content: none; }
+  @top-right { content: none; }
+  @bottom-center { content: none; }
+  @bottom-left { content: none; }
+}
+.laas-cover {
+  page: cover;
+  break-after: page;
+  box-sizing: border-box;
+  min-height: 247mm;
+  padding: 40mm 24mm 26mm;
+  display: flex;
+  flex-direction: column;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+.nist-cover .cover-bar {
+  height: 12mm;
+  background: #1a4480;
+  margin: -40mm -24mm 16mm;
+}
+.nist-cover .cover-desig {
+  font-size: 11pt;
+  letter-spacing: 0.04em;
+  color: #1a4480;
+}
+.nist-cover .cover-title {
+  margin-top: 8mm;
+  font-size: 28pt;
+  line-height: 1.1;
+  color: #1a4480;
+}
+.nist-cover .cover-sub {
+  margin-top: 5mm;
+  font-size: 14pt;
+  color: #205493;
+}
+.nist-cover .cover-meta {
+  margin-top: auto;
+  font-family: "STIX Two Text", Charter, Georgia, serif;
+  font-size: 10.5pt;
+  color: #222;
+}
+.nist-cover .cover-meta div { margin: 1mm 0; }
+.nist-cover .cover-notice {
+  margin-top: 8mm;
+  border-top: 2pt solid #1a4480;
+  padding-top: 3mm;
+  font-size: 8pt;
+  color: #777;
+}
+
 html {
   font-family: "STIX Two Text", "Charter", Georgia, serif;
   font-size: 10.5pt;
