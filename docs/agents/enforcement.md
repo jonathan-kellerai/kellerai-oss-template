@@ -229,6 +229,21 @@ diagnostic message for each firing rule.
 These surfaces are the canonical inputs to any downstream decision log or
 append-only trace required by `LAAS-OBL-TRC-001`.
 
+### Proof scripts — LaaS action-conformance (`scripts/laas/`)
+
+The LaaS action-conformance policy ships a decision-record emitter and runnable
+proofs under `scripts/laas/`. Each is invoked directly with `python3` or `bash`;
+none are wired into a git hook, so contributors run them on demand.
+
+| Script | Invocation | Purpose |
+|--------|------------|---------|
+| `scripts/laas/emitter.py` | `python3 scripts/laas/emitter.py -i <effect-surface.json> -b conformance/laas/data.json -o <out.json>` | Emit a gate-derived decision record from an effect surface. |
+| `scripts/laas/check.sh` | `bash scripts/laas/check.sh` | Emit a sample decision record and (if `opa` is present) evaluate it against `package kellerai.laas.actions`; skips the eval when `opa` is absent. |
+| `scripts/laas/osi_to_surface.py` | `python3 scripts/laas/osi_to_surface.py -m <model.json> --kind dataset --name <name> --operation write` (axes: `read`/`write`/`delete`; add `--unsigned` for an untrusted model) | OSI (Open Semantic Interchange) → LaaS adapter: build an effect surface from an annotated OSI model and emit a decision record via the canonical emitter — no tier math lives in the adapter. |
+| `scripts/laas/osi_check.sh` | `bash scripts/laas/osi_check.sh` | OSI model → adapter → decision record → `opa eval` proof, asserting the CT4 `net_settlement_amount` write is compliant under full enforcement controls. Exits non-zero if `opa` is absent. |
+
+`scripts/laas/test_osi_to_surface.py` is the stdlib unittest for the OSI adapter; run the suite with `python3 -m unittest discover scripts/laas`.
+
 ## The blast-radius pulse
 
 `conformance/blast_radius.rego` is the third OPA policy: a deterministic
