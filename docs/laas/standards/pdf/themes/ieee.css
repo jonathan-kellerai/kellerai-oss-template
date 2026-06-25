@@ -1,4 +1,4 @@
-/* IEEE-Std-style emulation for LAAS — UNOFFICIAL draft rendering.
+/* IEEE-Std-style emulation for LAAS: UNOFFICIAL draft rendering.
    No IEEE logos, seals, or trademarks are used. */
 
 @page {
@@ -17,7 +17,7 @@
     color: #111;
   }
   @bottom-left {
-    content: "Unofficial draft — not an approved IEEE standard";
+    content: "Unofficial draft: not an approved IEEE standard";
     font-size: 7pt;
     color: #888;
   }
@@ -108,6 +108,12 @@ h3 { font-size: 11pt; margin: 12pt 0 4pt; }
 h4 { font-size: 10pt; font-style: italic; margin: 10pt 0 4pt; }
 
 h1, h2, h3, h4 { break-after: avoid; }
+
+/* Each major section (h2) starts on a new page. Both properties for WeasyPrint. */
+h2 {
+  break-before: page;
+  page-break-before: always;
+}
 
 p { margin: 0 0 6pt; }
 

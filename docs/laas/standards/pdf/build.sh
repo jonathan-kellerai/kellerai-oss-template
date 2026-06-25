@@ -42,7 +42,7 @@ $include-after$
 HTML
 
 # theme:basename pairs
-for pair in "ieee:laas-ieee" "nist:laas-nist" "iso:laas-iso"; do
+for pair in "ieee:laas-ieee" "nist:laas-nist" "iso:laas-iso" "sr:laas-sr"; do
   theme="${pair%%:*}"
   base="${pair##*:}"
   md="$src/$base.md"

@@ -1,13 +1,13 @@
 # IEEE Draft Standard for Action-Level Assurance of Autonomous Software Agents (LAAS)
 
 **Designation:** IEEE P-XXXX/D1, 2026
-**Status:** Draft — not yet approved by IEEE
+**Status:** Draft (not yet approved by IEEE)
 
 ---
 
 - **Prepared by:** KellerAI Open-Source Working Group
 - **Source of truth:** `conformance/laas/data.json` (machine-readable bundle `laas-fin-1.1.0`)
-- **Enforcing policy:** `conformance/laas/laas.rego` — OPA package `kellerai.laas.actions`
+- **Enforcing policy:** `conformance/laas/laas.rego` (OPA package `kellerai.laas.actions`)
 - **Rationale and design record:** `docs/laas/proposal-v1.1.md`
 - **Supersedes:** LAAS v1.0 (`standard/LAAS.md`, draft)
 - **Date of this draft:** 2026-06-22
@@ -18,14 +18,14 @@
 
 This standard defines action-level assurance requirements for autonomous software agents powered
 by large language models (LLMs).
-It establishes a consequence-tier framework (CT0–CT4), a set of twelve normative obligations,
+It establishes a consequence-tier framework (CT0–CT4), twelve normative obligations,
 verification independence and qualification criteria, enforcement-plane integrity requirements,
 decision-trace evidence requirements, and residual escape-rate tolerances.
 The standard applies to individual agent actions that produce effects outside the agent's own
 sandbox.
 It does not certify a model; it gates what an agent may commit.
-Conformance is demonstrated through a signed, sampled decision-trace bundle and an independent
-auditor attestation that the bundle's verdicts satisfy the obligation set.
+A deployer demonstrates conformance through a signed, sampled decision-trace bundle and an
+independent auditor attestation that the bundle's verdicts satisfy the obligation set.
 
 **Keywords:** agent assurance; autonomous agents; blast radius; consequence tier; decision trace;
 enforcement gate; escape rate; independent verification; LLM; policy-as-code; pre-commit
@@ -48,7 +48,7 @@ verification; zero trust.
   - [4.2 Conformance attestation](#42-conformance-attestation)
   - [4.3 Obligation lifecycle](#43-obligation-lifecycle)
 - [5. Consequence-Tier Derivation Requirements](#5-consequence-tier-derivation-requirements)
-  - [5.1 Tier derivation — general (TIER-001)](#51-tier-derivation--general-tier-001)
+  - [5.1 Tier derivation, general (TIER-001)](#51-tier-derivation-general-tier-001)
   - [5.2 Self-report constraint (SELF-001)](#52-self-report-constraint-self-001)
   - [5.3 Cumulative blast-radius aggregation (AGG-001)](#53-cumulative-blast-radius-aggregation-agg-001)
   - [5.4 Untrusted-input tier elevation (INP-001)](#54-untrusted-input-tier-elevation-inp-001)
@@ -78,9 +78,9 @@ verification; zero trust.
 ### 1.1 Scope
 
 This standard applies to **individual actions** taken by LLM-based autonomous software agents
-that produce effects outside the agent's own sandbox — including but not limited to tool
-invocations, record writes, fund transfers, access-permission changes, and communications to
-external parties.
+that produce effects outside the agent's own sandbox. Such actions include, but are not limited
+to, tool invocations, record writes, fund transfers, access-permission changes, and
+communications to external parties.
 
 This standard:
 
@@ -101,9 +101,9 @@ This standard does **not**:
 
 ### 1.2 Purpose
 
-The purpose of this standard is to provide a machine-actionable, two-layer assurance framework
-that bounds the rate at which an undetected error in an LLM agent's output reaches and is
-committed as a consequential external action.
+This standard provides a machine-actionable, two-layer assurance framework that bounds the rate
+at which an undetected error in an LLM agent's output reaches and is committed as a consequential
+external action.
 
 This standard applies Zero-Trust to model outputs and to the apparatus surrounding them.
 Specifically, a conforming system shall not trust:
@@ -116,8 +116,8 @@ A control that allows the constrained party to tier, grade, or gate its own acti
 non-conforming.
 
 This standard is a **standard of care**, not a correctness guarantee.
-Conformance asserts that the right checks ran, by the right party, with evidence — not that no
-error can occur.
+Conformance asserts that the right checks ran, by the right party, with evidence; it does not
+assert that no error can occur.
 
 ### 1.3 Word usage
 
@@ -135,16 +135,16 @@ These definitions conform to IEEE Standards Style Manual conventions.
 The following documents are referenced in the body of this standard and are indispensable for
 its application.
 
-- `standard/LAAS.md` — LAAS prose normative reference, v1.1 (canonical; `data.json` is derived
+- `standard/LAAS.md`: LAAS prose normative reference, v1.1 (canonical; `data.json` is derived
   from it).
-- `conformance/laas/data.json` — machine-readable obligation bundle `laas-fin-1.1.0`; single
+- `conformance/laas/data.json`: machine-readable obligation bundle `laas-fin-1.1.0`; the single
   source of truth for tier-lattice values, escape-rate tolerances, and obligation metadata.
-- `conformance/laas/laas.rego` — OPA policy implementing the conformance predicate, package
+- `conformance/laas/laas.rego`: OPA policy implementing the conformance predicate, package
   `kellerai.laas.actions`.
 
-Where the prose in this document and `conformance/laas/data.json` disagree, that is a defect;
-open a `policy-bug` issue against the repository.
-Prose cannot block a non-conforming action — the Rego policy does.
+Where the prose in this document and `conformance/laas/data.json` disagree, that disagreement is
+a defect; open a `policy-bug` issue against the repository.
+Prose cannot block a non-conforming action; the Rego policy does.
 
 ---
 
@@ -273,7 +273,7 @@ value, and a trigger predicate; violation of an `error`-severity obligation bloc
 
 **observed effect surface**
 The actual tool, API, scope, amount, and metadata of the action as observed by the gate at
-runtime — not as declared by the actor.
+runtime, not as declared by the actor.
 
 **out-of-process gate**
 A gate component that executes in a process or trust boundary separate from the actor, such
@@ -359,9 +359,9 @@ A conforming system shall satisfy, for every gated action, the following predica
 (stated normatively; implemented in `conformance/laas/laas.rego:154–191`):
 
 > If any obligation's trigger condition matched the action, then the action either
-> (a) passed an independent, qualified pre-commit verifier — plus human approval when
-> the effective CT is 4, and with measured residual escape rate not exceeding the
-> declared tolerance — **or** (b) was blocked and escalated.
+> (a) passed an independent, qualified pre-commit verifier (plus human approval when
+> the effective CT is 4), with measured residual escape rate not exceeding the
+> declared tolerance, **or** (b) was blocked and escalated.
 > No other outcome conforms.
 
 **4.1.1** A deployer's system shall be capable of evaluating this predicate mechanically, given
@@ -385,7 +385,7 @@ Obligation precedence values are defined in `conformance/laas/data.json:19–32`
 ### 4.2 Conformance attestation
 
 **4.2.1** A deployer shall demonstrate conformance by producing a **signed, sampled trace bundle**
-— an integrity-verified representative slice of decision-trace records over a declared period —
+(an integrity-verified representative slice of decision-trace records over a declared period),
 accompanied by an **independent auditor attestation** that the bundle's verdicts satisfy the
 obligation set.
 
@@ -417,10 +417,10 @@ the traced actions.
 
 ## 5. Consequence-Tier Derivation Requirements
 
-### 5.1 Tier derivation — general (TIER-001)
+### 5.1 Tier derivation, general (TIER-001)
 
 **5.1.1** The gate shall derive the consequence tier for every action from the **observed effect
-surface** — the actual tool, API, scope, and consequence attributes as observed at runtime —
+surface** (the actual tool, API, scope, and consequence attributes as observed at runtime),
 not from the actor's self-report.
 
 **5.1.2** The gate shall apply the following derivation function
@@ -470,12 +470,12 @@ where `aggregate_window_ct` is the cumulative window effect tier defined in Sect
 
 **5.1.6** The operational definitions of the three axes shall be:
 
-- **reversibility** — `reversible`: a tested, in-window, single-step undo exists; `hard`: undo
+- **reversibility.** `reversible`: a tested, in-window, single-step undo exists; `hard`: undo
   exists but is costly, multi-step, or time-bounded; `irreversible`: no programmatic undo
   exists; `none`: unknown. Unknown reversibility shall be treated as `irreversible`.
-- **scope** — `single`: one record or user; `multi`: many records or users; `org`: organization-wide;
+- **scope.** `single`: one record or user; `multi`: many records or users; `org`: organization-wide;
   `public`: external parties or the public. Unknown scope shall be treated as `public`.
-- **consequence** — classified as `none`, `low`, `material`, or `high` by worst-case financial,
+- **consequence.** Classified as `none`, `low`, `material`, or `high` by worst-case financial,
   safety, legal, or reputational impact. Unknown consequence shall be treated as `high`.
 
 ### 5.2 Self-report constraint (SELF-001)
@@ -597,7 +597,7 @@ and verdict shall be recorded in the decision trace for every CT≥3 action.
 **6.2.1** A verifier satisfies the independence requirement if exactly one of the following
 conditions holds (`conformance/laas/laas.rego:75–83`, `docs/laas/proposal-v1.1.md:§7.3`):
 
-1. The verifier is a **deterministic or exact checker** — a different kind of checker from the
+1. The verifier is a **deterministic or exact checker**: a different kind of checker from the
    actor (e.g., a schema validator, ledger reconciliation engine, hash comparison, or allowlist
    check). A deterministic verifier is independent at any CT.
 2. The verifier is a **distinct model lineage** from the actor and its measured error correlation
@@ -625,11 +625,11 @@ constitutes an IND-001 (`LAAS-OBL-IND-001`) error-severity violation
 
 **6.3.2** Qualification shall comprise, at minimum:
 
-1. **Documented coverage** of the verifier's claim class — the set of properties or conditions
+1. **Documented coverage** of the verifier's claim class: the set of properties or conditions
    the verifier asserts, and the scope of inputs over which it has been tested.
-2. **A negative-test suite** — a set of known-bad inputs that the verifier must catch; the
+2. **A negative-test suite**: a set of known-bad inputs that the verifier must catch; the
    verifier shall fail (return `fail`) on all members of the negative-test suite.
-3. **A change-controlled version** — a stable version identifier for the verifier, recorded in
+3. **A change-controlled version**: a stable version identifier for the verifier, recorded in
    the trace as `verifier_qualification_ref`, such that a change to the verifier triggers
    re-qualification.
 
@@ -825,8 +825,8 @@ verifier independence requirement of Section 6.2 for that action.
 **8.2.1** When the agent uses a vendor model, calls a third-party tool, or relies on a
 third-party API to produce or inform an action, the decision trace shall carry:
 
-1. **provenance** — identification of the vendor model, tool, or API used;
-2. **scope limits** — explicit bounds on the scope within which the vendor component is
+1. **provenance**: identification of the vendor model, tool, or API used;
+2. **scope limits**: explicit bounds on the scope within which the vendor component is
    authorized to contribute to the action.
 
 **8.2.2** Errors attributable to vendor model outputs shall count against the deployer's
@@ -845,8 +845,7 @@ used constitutes a VEN-001 (`LAAS-OBL-VEN-001`) error-severity violation
 
 ## Annex A (informative): Consequence-Tier Lattice and Obligation Map
 
-This annex is informative.
-It provides reference tables for implementers.
+This annex is informative. It provides reference tables for implementers.
 
 ### A.1 Tier-lattice rank values
 
@@ -918,19 +917,18 @@ Source: `conformance/laas/data.json` key `obligations`.
 
 | CT | Trace | Self-check | Ind. verifier | Qualified verifier | Residual ≤ tolerance | Human approval | Rollback plan |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 0 | yes | — | — | — | — | — | — |
-| 1 | yes | yes | — | — | — | — | — |
-| 2 | yes | — | yes (or rehearsed rollback) | — | yes | — | yes |
-| 3 | yes | — | yes | yes | yes | — | yes |
-| 4 | yes | — | yes | yes | yes (0 %) | yes | yes |
+| 0 | yes | no | no | no | no | no | no |
+| 1 | yes | yes | no | no | no | no | no |
+| 2 | yes | no | yes (or rehearsed rollback) | no | yes | no | yes |
+| 3 | yes | no | yes | yes | yes | no | yes |
+| 4 | yes | no | yes | yes | yes (0 %) | yes | yes |
 
 ---
 
 ## Annex B (informative): Mapping to DO-178C, SR 26-2/SR 11-7, and UL 4600
 
-This annex is informative.
-It identifies the structural analogues between this standard and the three mature standards that
-informed its design.
+This annex is informative. It identifies the structural analogues between this standard and the
+three mature standards that informed its design.
 Source: `docs/laas/proposal-v1.1.md:§2`, `§3`.
 
 ### B.1 Common structural object
@@ -1014,11 +1012,11 @@ Readers should confirm current versions before relying on specific document deta
 
 - UL 4600, *Standard for Safety for the Evaluation of Autonomous Products*, Underwriters
   Laboratories, edition current at time of use.
-- ISO 21448, *Road vehicles — Safety of the intended functionality (SOTIF)*, ISO, 2022.
+- ISO 21448, *Road vehicles: Safety of the intended functionality (SOTIF)*, ISO, 2022.
 
 ### AI governance and management systems
 
-- ISO/IEC 42001:2023, *Artificial Intelligence — Management system*.
+- ISO/IEC 42001:2023, *Artificial Intelligence: Management system*.
 - NIST AI 100-1, *Artificial Intelligence Risk Management Framework (AI RMF 1.0)*, National
   Institute of Standards and Technology, 2023.
 - NIST AI 600-1, *Artificial Intelligence Risk Management Framework: Generative Artificial
@@ -1034,11 +1032,11 @@ Readers should confirm current versions before relying on specific document deta
 
 ### LAAS internal sources (normative)
 
-- `standard/LAAS.md` — canonical prose specification, LAAS v1.1.
-- `conformance/laas/data.json` — machine-readable obligation bundle `laas-fin-1.1.0`.
-- `conformance/laas/laas.rego` — OPA policy, package `kellerai.laas.actions`.
-- `docs/laas/proposal-v1.1.md` — rationale and design record, LAAS v1.1.
+- `standard/LAAS.md`: canonical prose specification, LAAS v1.1.
+- `conformance/laas/data.json`: machine-readable obligation bundle `laas-fin-1.1.0`.
+- `conformance/laas/laas.rego`: OPA policy, package `kellerai.laas.actions`.
+- `docs/laas/proposal-v1.1.md`: rationale and design record, LAAS v1.1.
 
 ---
 
-End of IEEE P-XXXX/D1 — LAAS Draft Standard
+End of IEEE P-XXXX/D1, LAAS Draft Standard

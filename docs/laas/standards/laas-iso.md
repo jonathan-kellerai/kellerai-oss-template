@@ -1,13 +1,13 @@
 # ISO/IEC XXXXX:2026(E)
 
-## Information technology — Artificial intelligence — Action-level assurance for autonomous agents (LAAS)
+## Information technology - Artificial intelligence - Action-level assurance for autonomous agents (LAAS)
 
 > **NOTICE:** This document is a draft illustration in the ISO/IEC Directives Part 2 format,
 > aligned to the drafting style of ISO/IEC 42001:2023 with a normative Annex A modelled on
 > ISO/IEC 27001:2022. It is **not** an official ISO/IEC deliverable, has not been submitted
 > to any standards body, and carries no endorsement from ISO, IEC, or any national body.
-> All rights reserved by the authors. © KellerAI / contributors — placeholder copyright,
-> draft only.
+> All rights reserved by the authors. © KellerAI / contributors (placeholder copyright,
+> draft only).
 
 ---
 
@@ -23,9 +23,8 @@ patent rights.
 
 This document will be reviewed at five-year intervals and, if necessary, revised.
 
-Any feedback or questions on this document should be directed to the user's national standards
-body. A comprehensive list of these bodies can be found at
-[https://www.iso.org/members.html](https://www.iso.org/members.html).
+Direct any feedback or questions on this document to your national standards body. These
+bodies are listed at [https://www.iso.org/members.html](https://www.iso.org/members.html).
 
 ---
 
@@ -48,7 +47,7 @@ Existing assurance frameworks address complementary but distinct problems:
 - **ISO/IEC 42001:2023** provides an AI management system at the organisational lifecycle level
   but does not specify per-action runtime conformance.
 
-None of the above is a published, two-layer, machine-evaluable assurance standard that:
+None of these is a published, two-layer, machine-evaluable assurance standard that:
 
 - derives verification obligations from the gate-observed blast radius of each individual action;
 - mandates independent pre-commit verification of irreversible or high-consequence actions;
@@ -56,8 +55,8 @@ None of the above is a published, two-layer, machine-evaluable assurance standar
 - emits a reconstructable, append-only, hash-chained decision trace as the conformance artefact.
 
 This document specifies such a standard: the **LLM-Agent Assurance Standard (LAAS)**. LAAS
-gates individual agent **actions** — not models — and is intended to be vertically applicable
-across any domain in which agents can take actions with effects outside their own sandbox.
+gates individual agent **actions** rather than models, and applies vertically across any
+domain in which agents take actions with effects outside their own sandbox.
 
 The key elements of LAAS are:
 
@@ -120,12 +119,12 @@ content constitutes requirements of this document. For dated references, only th
 cited applies. For undated references, the latest edition of the referenced document
 (including any amendments) applies.
 
-- **ISO/IEC 42001:2023**, *Information technology — Artificial intelligence — Management system*
-- **ISO/IEC 27001:2022**, *Information security, cybersecurity and privacy protection —
-  Information security management systems — Requirements*
-- **ISO/IEC 42006:2025**, *Information technology — Artificial intelligence — Requirements
+- **ISO/IEC 42001:2023**, *Information technology - Artificial intelligence - Management system*
+- **ISO/IEC 27001:2022**, *Information security, cybersecurity and privacy protection -
+  Information security management systems - Requirements*
+- **ISO/IEC 42006:2025**, *Information technology - Artificial intelligence - Requirements
   for bodies providing audit and certification of AI management systems*
-- **ISO 21448:2022**, *Road vehicles — Safety of the intended functionality*
+- **ISO 21448:2022**, *Road vehicles - Safety of the intended functionality*
 
 Informative alignment with DO-178C, SR 11-7/SR 26-2, and UL 4600 is given in Annex B.
 
@@ -367,8 +366,8 @@ The gate shall maintain a windowed aggregate of effect surfaces per principal, s
 effect class. When the aggregate effect crosses a consequence-tier threshold, the gate shall
 re-tier subsequent actions within the window to the aggregate's tier.
 
-This requirement closes the structuring vulnerability in which an agent or operator decomposes
-a high-consequence action into a sequence of individually lower-consequence actions.
+This requirement closes the structuring vulnerability in which an agent or operator splits a
+high-consequence action into a sequence of individually lower-consequence actions.
 
 The effective consequence tier for any action is:
 
@@ -468,11 +467,11 @@ recorded in the decision trace.
 
 Claims and actions shall be classified into:
 
-a) **Bucket A — deterministically checkable:** An exact oracle exists. The gate shall apply the
-   exact verifier; the escape rate approaches zero bounded only by the verifier's soundness.
+a) **Bucket A (deterministically checkable):** An exact oracle exists. The gate shall apply the
+   exact verifier; the escape rate approaches zero, bounded only by the verifier's soundness.
    No probabilistic tolerance is permitted where an exact verifier exists.
 
-b) **Bucket B — open-world:** No exact oracle exists. The deployer shall declare a maximum
+b) **Bucket B (open-world):** No exact oracle exists. The deployer shall declare a maximum
    acceptable escape rate for the claim class at the relevant consequence tier, estimate the
    escape rate by backtesting on a held-out, representative, adversarially-stressed evaluation
    set, and re-measure the escape rate on any change to the model, prompt, tools, or policy.
@@ -486,7 +485,7 @@ consequence tier. The following maximum tolerances apply:
 |--------------|-------------------------------|
 | CT2 | 0.02 (2 %) |
 | CT3 | 0.005 (0.5 %) |
-| CT4 | 0 (zero — deterministic or human verification required) |
+| CT4 | 0 (zero; deterministic or human verification required) |
 
 *Verified in `conformance/laas/data.json:15`.*
 
@@ -716,7 +715,7 @@ order is recorded in the decision trace.
 
 ---
 
-## Annex A (normative) — Control objectives and controls
+## Annex A (normative): Control objectives and controls
 
 This annex specifies the control objectives and controls for LAAS conformance. Each control
 maps to one obligation. Deployers shall implement all applicable controls or document a
@@ -739,15 +738,15 @@ justified exception in the conformance evidence.
 
 ---
 
-## Annex B (informative) — Correspondence to DO-178C, SR 26-2, and UL 4600
+## Annex B (informative): Correspondence to DO-178C, SR 26-2, and UL 4600
 
-This annex documents the correspondence between LAAS concepts and the three mature assurance
-frameworks from which LAAS draws its structural object. This annex is informative; it does
-not modify the requirements of this document.
+This annex maps LAAS concepts to the three mature assurance frameworks from which LAAS draws
+its structural object. This annex is informative; it does not modify the requirements of this
+document.
 
 ### B.1 Common structural object
 
-All four frameworks share a common set of assurance mechanics, applied with different
+All four frameworks share a common set of assurance mechanics, applied under different
 vocabulary to different domains.
 
 | Shared mechanic | DO-178C | SR 26-2 (SR 11-7) | UL 4600 | LAAS |
@@ -768,9 +767,8 @@ CT4 highest). DO-178C DAL letters fall with consequence (A highest, E lowest/non
 crosswalk table shall account for this inversion to prevent mapping errors.
 
 **B.2.2 Per-action runtime gating.** DO-178C applies assurance pre-deployment at the
-artefact level. LAAS applies assurance at runtime to each individual action, enabling
-continuous conformance in environments where model, prompt, tools, and policy change
-continuously.
+artefact level. LAAS applies assurance at runtime to each individual action, sustaining
+conformance in environments where model, prompt, tools, and policy change continuously.
 
 **B.2.3 Open-world scope.** DO-178C and ARP6983/ED-324 are explicitly limited to frozen,
 deterministic or supervised-ML software in embedded avionics. LAAS is designed for generative,
@@ -809,12 +807,12 @@ The following documents are cited for informative purposes.
   2026 (confirm publication date before citation).
 - UL Solutions, **UL 4600**, *Standard for Safety for the Evaluation of Autonomous Products*,
   2020 (latest edition).
-- ISO, **ISO 21448:2022**, *Road vehicles — Safety of the intended functionality (SOTIF)*.
-- ISO/IEC, **ISO/IEC 42001:2023**, *Information technology — Artificial intelligence —
+- ISO, **ISO 21448:2022**, *Road vehicles - Safety of the intended functionality (SOTIF)*.
+- ISO/IEC, **ISO/IEC 42001:2023**, *Information technology - Artificial intelligence -
   Management system*.
 - ISO/IEC, **ISO/IEC 27001:2022**, *Information security, cybersecurity and privacy
-  protection — Information security management systems — Requirements*.
-- ISO/IEC, **ISO/IEC 42006:2025**, *Information technology — Artificial intelligence —
+  protection - Information security management systems - Requirements*.
+- ISO/IEC, **ISO/IEC 42006:2025**, *Information technology - Artificial intelligence -
   Requirements for bodies providing audit and certification of AI management systems*.
 - SAE International / EUROCAE, **ARP6983 / ED-324**, *Process Standard for Development and
   Certification/Approval of Aeronautical Safety-Related Products Implementing AI/ML Technology*,

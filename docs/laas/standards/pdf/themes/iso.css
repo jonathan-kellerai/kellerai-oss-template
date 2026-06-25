@@ -1,4 +1,4 @@
-/* ISO/IEC-Directives-style emulation for LAAS — UNOFFICIAL draft rendering.
+/* ISO/IEC-Directives-style emulation for LAAS: UNOFFICIAL draft rendering.
    No ISO or IEC logos, seals, or trademarks are used. A4 page. */
 
 @page {
@@ -11,7 +11,7 @@
     color: #222;
   }
   @bottom-left {
-    content: "© ISO/IEC 2026 — All rights reserved · UNOFFICIAL DRAFT";
+    content: "© ISO/IEC 2026 · All rights reserved · UNOFFICIAL DRAFT";
     font-size: 7.5pt;
     color: #555;
   }
@@ -96,6 +96,15 @@ h2 {
   font-size: 13pt;
   color: #003478;
   margin: 16pt 0 6pt;
+  break-before: page;
+  page-break-before: always;
+}
+
+/* The first h2 is the ISO title subtitle; keep it on the populated title page
+   with the h1 instead of orphaning a blank page after the cover. */
+h2:first-of-type {
+  break-before: auto;
+  page-break-before: auto;
 }
 
 h3 {

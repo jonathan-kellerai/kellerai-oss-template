@@ -3,11 +3,11 @@
 <!-- NIST-SP designation placeholder: NIST SP 800-XXX (not yet assigned) -->
 
 **Designation:** LAAS-NIST-PROFILE-DRAFT-1.1
-**Document type:** Control profile — NIST AI RMF crosswalk and SP 800-style control catalog
-**Source standard:** LLM-Agent Assurance Standard (LAAS) v1.1 — `standard/LAAS.md`
+**Document type:** Control profile (NIST AI RMF crosswalk and SP 800-style control catalog)
+**Source standard:** LLM-Agent Assurance Standard (LAAS) v1.1, `standard/LAAS.md`
 **Machine source of truth:** `conformance/laas/data.json` (bundle `laas-fin-1.1.0`)
 **Enforcing policy:** `conformance/laas/laas.rego`, package `kellerai.laas.actions`
-**Status:** Draft — not approved; all thresholds cite `conformance/laas/data.json`
+**Status:** Draft, not approved; all thresholds cite `conformance/laas/data.json`
 
 > **Disclaimer:** This is not an official NIST publication.
 > It is a community-produced control profile that maps the LLM-Agent Assurance Standard (LAAS)
@@ -19,7 +19,7 @@
 
 ## Abstract
 
-Autonomous AI agents can commit actions — write records, move money, modify access — at a rate
+Autonomous AI agents commit actions (writing records, moving money, modifying access) at a rate
 and scale that exceed traditional governance checkpoints.
 Existing frameworks govern model providers, management systems, or periodic audits; none publishes
 a machine-checkable, per-action conformance standard that derives verification obligations directly
@@ -54,8 +54,8 @@ Second, it provides a crosswalk from each LAAS mechanism to the NIST AI RMF (AI 
 function and subcategory it instantiates, enabling organizations to demonstrate AI RMF alignment
 through LAAS conformance.
 
-**Scope.** LAAS governs **individual actions taken by LLM-based agents** — tool calls, record
-writes, financial transfers, access changes — wherever those actions have an effect outside the
+**Scope.** LAAS governs **individual actions taken by LLM-based agents** (tool calls, record
+writes, financial transfers, access changes) wherever those actions have an effect outside the
 agent's own sandbox (`standard/LAAS.md §1`).
 LAAS does not certify a model, a training pipeline, or a management system.
 It gates what an agent is allowed to commit.
@@ -79,9 +79,9 @@ periodic audit alone.
 ### 1.3 How to Use This Profile
 
 Read **Section 2** for a plain-language description of the LAAS approach and its key concepts.
-Use **Section 3** for the RMF crosswalk — it answers "which LAAS mechanisms satisfy which RMF
-subcategories."
-Use **Section 4** as the normative control catalog — one control per obligation, in SP 800 format,
+Use **Section 3** for the RMF crosswalk; it answers which LAAS mechanisms satisfy which RMF
+subcategories.
+Use **Section 4** as the normative control catalog: one control per obligation, in SP 800 format,
 with assessment objectives an auditor or automated gate can evaluate.
 Read **Section 5** for the consequence-tier derivation function and escape-rate measurement
 method.
@@ -103,16 +103,15 @@ A conforming system does not trust:
 2. a verifier's soundness or independence without evidence;
 3. the integrity of the enforcement plane.
 
-The consequence of this invariant is that every control in LAAS is evaluated by a party other
-than the actor.
-The gate — an out-of-process policy engine running the OPA policy in
-`conformance/laas/laas.rego` — derives the tier, selects obligations, and emits a decision trace
+Because of this invariant, a party other than the actor evaluates every control in LAAS.
+The gate, an out-of-process policy engine running the OPA policy in
+`conformance/laas/laas.rego`, derives the tier, selects obligations, and emits a decision trace
 the actor cannot rewrite.
 
 ### 2.2 Consequence Tiers
 
-Every agent action is assigned a **Consequence Tier (CT0–CT4)** by the gate, computed from the
-observed effect surface — never from the agent's self-report.
+The gate assigns every agent action a **Consequence Tier (CT0–CT4)**, computed from the
+observed effect surface and never from the agent's self-report.
 CT numbers rise with consequence; CT4 is the highest (the inverse of DO-178C DAL letters, where
 A is most severe) (`docs/laas/proposal-v1.1.md §6.1`).
 
@@ -154,7 +153,7 @@ effective_ct = max(gate_assigned_ct, aggregate_window_ct)
 ### 2.3 Effect Surface and the Authorized Operating Envelope
 
 The effect surface is the tuple `(reversibility, scope, consequence)` of the action as
-**observed by the gate** from the actual tool invocation — not as reported by the agent.
+**observed by the gate** from the actual tool invocation, not as reported by the agent.
 The Authorized Operating Envelope (AOE) is the operator-declared set of permitted tools,
 scopes, data domains, action classes, and CT ceiling.
 Out-of-AOE actions produce a first-class `verdict: abstain → escalate` trace record
@@ -175,8 +174,8 @@ attestation constitutes the LAAS conformance attestation
 
 ## 3. Crosswalk to the NIST AI RMF
 
-The NIST AI RMF (AI 100-1, 2023) organizes AI risk management into four functions — GOVERN,
-MAP, MEASURE, MANAGE — each decomposed into categories and subcategories.
+The NIST AI RMF (AI 100-1, 2023) organizes AI risk management into four functions (GOVERN,
+MAP, MEASURE, and MANAGE), each decomposed into categories and subcategories.
 The table below maps each LAAS mechanism to the RMF function and a representative subcategory.
 Section 4 provides the full normative controls; this crosswalk provides navigational orientation.
 
@@ -212,7 +211,7 @@ subcategories require.
 
 LAAS contributes to MAP through its consequence-tier derivation function (TIER-001), which
 performs the impact characterization that MAP subcategories require for each AI action.
-The anti-structuring obligation (AGG-001) provides aggregated risk characterization — the MAP
+The anti-structuring obligation (AGG-001) provides aggregated risk characterization: the MAP
 analogue of cumulative position-limit monitoring.
 The input-provenance obligation (INP-001) contributes context characterization by flagging
 untrusted input as a tier-raising signal.
@@ -257,7 +256,7 @@ IDs in `conformance/laas/data.json → obligations`.
 #### Control Statement
 
 The system shall derive the Consequence Tier of every agent action from the observed effect
-surface — the tuple (reversibility, scope, consequence) as measured by the out-of-process gate —
+surface (the tuple (reversibility, scope, consequence) as measured by the out-of-process gate)
 using the tier lattice defined in `conformance/laas/data.json → tier_lattice`.
 The gate-assigned CT shall never be set below the lattice-derived value.
 The effective CT shall be the maximum of the gate-assigned CT and the cumulative window CT.
@@ -266,8 +265,8 @@ The effective CT shall be the maximum of the gate-assigned CT and the cumulative
 
 This control is the foundational invariant of LAAS: the constrained party (the agent) cannot
 grade its own action.
-The gate observes the actual tool invocation — the amount transferred, the counterparty
-identified, the scope of write — not the agent's description of what it intends to do.
+The gate observes the actual tool invocation (the amount transferred, the counterparty
+identified, the scope of write), not the agent's description of what it intends to do.
 If any axis of the effect surface is undetermined, the tier defaults to CT4
 (`conformance/laas/data.json → default_ct_when_undetermined: 4`,
 `conformance/laas/laas.rego:29`).
@@ -309,8 +308,8 @@ The gate-derived CT shall prevail in all cases.
 #### Discussion
 
 This control implements the warning tier of the Zero-Trust-on-classification invariant.
-Self-reports are recorded for diagnostic and audit purposes — a pattern of agents persistently
-under-reporting their tier is a governance signal — but they cannot lower the operative tier.
+Self-reports are recorded for diagnostic and audit purposes (a pattern of agents persistently
+under-reporting their tier is a governance signal), but they cannot lower the operative tier.
 This is a `warning`-severity obligation; it does not block the action but does appear in
 the `summary.warnings` count (`conformance/laas/laas.rego:106-113`).
 
@@ -351,7 +350,7 @@ This control establishes three interlocking requirements derived from
 - `bundle_signed`: the policy bundle is signed before deployment; the gate verifies the
   signature before evaluating any action.
 - `gate_out_of_process`: the gate runs in a separate process (or network service) from the
-  agent; the agent cannot call `--dangerously-skip-permissions`-style overrides to
+  agent; the agent cannot call overrides of the `--dangerously-skip-permissions` style to
   circumvent it.
 - Append-only sink: the trace store accepts `APPEND` but not `UPDATE` or `DELETE` on
   committed records.
@@ -459,7 +458,7 @@ The gate-assigned CT shall never be set below the cumulative window CT.
 #### Discussion
 
 Per-action tiering is necessary but not sufficient.
-N individually sub-threshold actions can compose into a high-CT aggregate effect — a form of
+N individually sub-threshold actions can compose into a high-CT aggregate effect: a form of
 structuring analogous to transaction structuring in financial regulation
 (`docs/laas/proposal-v1.1.md §6.4`).
 The Rego policy computes `_agg_ct` from `input.aggregate.window_effect_ct` and takes
@@ -639,7 +638,7 @@ evidence is required wherever rollback substitutes for pre-commit verification
    `action_blocked == false` has `verifier.verdict == "pass"`.
 2. Verify that `trigger_matched == true` implies either `verdict == "pass"` (with independent,
    qualified verifier, human approval at CT4, and residual ≤ tolerance) or
-   `action_blocked == true` — the LAAS conformance predicate
+   `action_blocked == true`: the LAAS conformance predicate
    (`docs/laas/proposal-v1.1.md §7.2`).
 3. Submit a test CT3 action without a verifier; confirm the gate blocks it and emits
    `LAAS-OBL-IRR-001`.
@@ -663,12 +662,12 @@ evidence is required wherever rollback substitutes for pre-commit verification
 For actions with effective CT ≥ 3, the pre-commit verifier shall be independent of the actor.
 Independence is satisfied by one of the following, applied in order of tier:
 
-1. **Deterministic / exact checker** — a different kind of checker (e.g., schema validator,
+1. **Deterministic / exact checker:** a different kind of checker (e.g., schema validator,
    ledger reconciliation, invertible round-trip) is independent at any CT for Bucket A.
-2. **Distinct model lineage with low error-correlation** — a verifier from a distinct model
+2. **Distinct model lineage with low error-correlation:** a verifier from a distinct model
    lineage whose measured error-correlation with the actor is ≤ 0.2 on the evaluation set
    is independent up to CT3.
-3. **Human** — required in addition at CT4.
+3. **Human:** required in addition at CT4.
 
 A verifier sharing the actor's model lineage is presumed non-independent.
 Where error-correlation cannot be bounded, CT ≥ 3 falls back to deterministic or human.
@@ -837,12 +836,12 @@ Abstention is the default when no approval is received within the declared timeo
 
 #### Discussion
 
-Human approval at CT4 implements the most restrictive control in the LAAS hierarchy —
-the two-person rule analogue for irreversible, high-consequence agent actions
+Human approval at CT4 implements the most restrictive control in the LAAS hierarchy:
+the two-person-rule analogue for irreversible, high-consequence agent actions
 (`standard/LAAS.md §3`, `docs/laas/proposal-v1.1.md §6.3`).
 
 Human approval need not be per-action.
-Operators may register **standing/pre-authorized envelopes** — a human pre-approves a bounded
+Operators may register **standing/pre-authorized envelopes**: a human pre-approves a bounded
 action class with explicit limits (e.g., external transfers ≤ $X to allowlisted
 counterparties); the gate enforces the bounds and escalates only out-of-envelope actions.
 **Batched approval** of queued in-envelope items is also permitted.
@@ -932,15 +931,15 @@ a high-CT aggregate trigger re-tiering of subsequent actions (LAAS-AGG-1).
 
 ### 5.3 Escape-Rate Measurement Method
 
-**Bucket A — deterministically checkable.**
+**Bucket A (deterministically checkable).**
 An exact oracle exists (compile, schema-validate, ledger reconciliation, hash match,
 invertible round-trip).
 Run the exact verifier; escape rate approaches zero, bounded by verifier soundness
 (itself an obligation, LAAS-VQ-1).
 Deterministic verifiers return `pass`, `fail`, or `indeterminate` (when required inputs
-are missing) — never `abstain`.
+are missing); they never return `abstain`.
 
-**Bucket B — open-world.**
+**Bucket B (open-world).**
 No exact oracle.
 The measurement protocol (`docs/laas/proposal-v1.1.md §5`):
 
@@ -979,24 +978,24 @@ RMF maturity, but the depth of implementation naturally aligns with organization
 
 | RMF Org Tier | Expected LAAS Implementation Depth |
 |--------------|-------------------------------------|
-| Tier 1 — Partial | CT0–CT2 controls operational; CT3–CT4 controls planned |
-| Tier 2 — Risk Informed | All 12 controls operational; backtest evidence available |
-| Tier 3 — Repeatable | Qualified verifiers; documented AOE; signed bundles; attestation bundles produced |
-| Tier 4 — Adaptive | Continuous escape-rate measurement; standing envelopes; automated re-qualification trigger on change |
+| Tier 1 (Partial) | CT0–CT2 controls operational; CT3–CT4 controls planned |
+| Tier 2 (Risk Informed) | All 12 controls operational; backtest evidence available |
+| Tier 3 (Repeatable) | Qualified verifiers; documented AOE; signed bundles; attestation bundles produced |
+| Tier 4 (Adaptive) | Continuous escape-rate measurement; standing envelopes; automated re-qualification trigger on change |
 
 ### 6.2 Phased Adoption
 
 Operators new to LAAS may adopt controls in the following sequence:
 
-1. **Phase 1 — Trace + enforcement plane (LAAS-ENF-1, LAAS-TRC-1):** stand up the
+1. **Phase 1, Trace and enforcement plane (LAAS-ENF-1, LAAS-TRC-1):** stand up the
    append-only trace and the out-of-process gate before adding obligation checks.
-2. **Phase 2 — Tier derivation (LAAS-TIER-1, LAAS-SELF-1, LAAS-AGG-1):**
+2. **Phase 2, Tier derivation (LAAS-TIER-1, LAAS-SELF-1, LAAS-AGG-1):**
    implement the tier-lattice derivation and cumulative-window aggregation.
-3. **Phase 3 — Input and vendor controls (LAAS-INP-1, LAAS-VEN-1):**
+3. **Phase 3, Input and vendor controls (LAAS-INP-1, LAAS-VEN-1):**
    add input-trust classification and vendor attribution.
-4. **Phase 4 — Independent verification (LAAS-IRR-1, LAAS-IND-1, LAAS-VQ-1):**
+4. **Phase 4, Independent verification (LAAS-IRR-1, LAAS-IND-1, LAAS-VQ-1):**
    qualify verifiers and wire them to the CT≥3 gate.
-5. **Phase 5 — Escape rate and human approval (LAAS-RES-1, LAAS-HUM-1):**
+5. **Phase 5, Escape rate and human approval (LAAS-RES-1, LAAS-HUM-1):**
    run initial backtests, declare tolerances, and implement the CT4 human-approval path.
 
 ---
@@ -1037,8 +1036,8 @@ This appendix maps LAAS mechanisms to their source-standard analogues.
 | Verifier qualification (VQ-001) | DO-330 tool qualification | Validator qualification | Safety case evidence quality |
 | Decision trace (TRC-001) | Bidirectional trace + data package | Validation documentation | GSN + evidence |
 | AOE + abstention | Configuration / operational envelope | Approved use scope | Operational Design Domain (ODD) |
-| Bucket B open-world bounding | — (weak analogue) | Conceptual soundness | SOTIF (ISO 21448) |
-| HUM-001 (CT4 human approval) | — | Human sign-off for high-impact | — |
+| Bucket B open-world bounding | None (weak analogue only) | Conceptual soundness | SOTIF (ISO 21448) |
+| HUM-001 (CT4 human approval) | None | Human sign-off for high-impact | None |
 
 **DO-178C direction note:** DO-178C DAL letters fall A→E with decreasing consequence (A is
 most severe); LAAS CT numbers rise with consequence (CT4 is most severe).
@@ -1063,28 +1062,28 @@ checks ran by the right party with evidence, not that no error can occur
 
 ### Normative References
 
-- `standard/LAAS.md` — LLM-Agent Assurance Standard v1.1 (normative prose)
-- `conformance/laas/data.json` — LAAS bundle `laas-fin-1.1.0` (machine source of truth for
+- `standard/LAAS.md`: LLM-Agent Assurance Standard v1.1 (normative prose)
+- `conformance/laas/data.json`: LAAS bundle `laas-fin-1.1.0` (machine source of truth for
   thresholds and obligation registry)
-- `conformance/laas/laas.rego` — OPA policy, package `kellerai.laas.actions` (enforcing policy)
+- `conformance/laas/laas.rego`: OPA policy, package `kellerai.laas.actions` (enforcing policy)
 
 ### Informative References
 
-- `docs/laas/proposal-v1.1.md` — LAAS Design Rationale and Proposal v1.1 (design record)
-- NIST AI 100-1 (2023) — Artificial Intelligence Risk Management Framework (AI RMF 1.0).
+- `docs/laas/proposal-v1.1.md`: LAAS Design Rationale and Proposal v1.1 (design record)
+- NIST AI 100-1 (2023): Artificial Intelligence Risk Management Framework (AI RMF 1.0).
   National Institute of Standards and Technology.
-- NIST AI 600-1 (Jul 2024) — Artificial Intelligence Risk Management Framework: Generative
+- NIST AI 600-1 (Jul 2024): Artificial Intelligence Risk Management Framework: Generative
   Artificial Intelligence Profile.
-- RTCA DO-178C (2011) — Software Considerations in Airborne Systems and Equipment
+- RTCA DO-178C (2011): Software Considerations in Airborne Systems and Equipment
   Certification. RTCA, Inc.
-- RTCA DO-330 (2011) — Software Tool Qualification Considerations. RTCA, Inc.
-- Board of Governors of the Federal Reserve System (2011) — SR 11-7: Guidance on Model Risk
+- RTCA DO-330 (2011): Software Tool Qualification Considerations. RTCA, Inc.
+- Board of Governors of the Federal Reserve System (2011): SR 11-7: Guidance on Model Risk
   Management.
-- UL 4600 (2020, Edition 1) — Standard for Safety for the Evaluation of Autonomous Products.
+- UL 4600 (2020, Edition 1): Standard for Safety for the Evaluation of Autonomous Products.
   UL Solutions.
-- ISO 21448:2022 — Road vehicles — Safety of the intended functionality (SOTIF).
-- ISO/IEC 42001:2023 — Information technology — Artificial intelligence — Management system.
-- Five Eyes (Apr–May 2026) — *Careful Adoption of Agentic AI Services* (joint advisory, six
+- ISO 21448:2022: Road vehicles. Safety of the intended functionality (SOTIF).
+- ISO/IEC 42001:2023: Information technology. Artificial intelligence. Management system.
+- Five Eyes (Apr–May 2026): *Careful Adoption of Agentic AI Services* (joint advisory, six
   agencies, 29 pp).
 - CSA MAESTRO threat model, CSA ATF Zero-Trust governance framework, CSA STAR-for-AI (Phase 1,
   in progress as of mid-2026).

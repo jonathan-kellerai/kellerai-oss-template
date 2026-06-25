@@ -1,4 +1,4 @@
-/* NIST-SP-style emulation for LAAS — UNOFFICIAL draft rendering.
+/* NIST-SP-style emulation for LAAS: UNOFFICIAL draft rendering.
    No NIST logos, seals, or trademarks are used. */
 
 @page {
@@ -12,7 +12,7 @@
     color: #1a4480;
   }
   @top-right {
-    content: "LAAS — Action-Level Assurance for Autonomous AI Agents";
+    content: "LAAS \00b7 Action-Level Assurance for Autonomous AI Agents";
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 8pt;
     color: #666;
@@ -103,6 +103,12 @@ h2 {
   font-size: 14pt;
   color: #1a4480;
   margin: 18pt 0 6pt;
+}
+
+/* Each major section (h2) starts on a new page. h3/h4 do not break. */
+h2 {
+  break-before: page;
+  page-break-before: always;
 }
 
 h3 {
