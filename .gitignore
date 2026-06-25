@@ -31,3 +31,8 @@ artifacts/
 /opa-eval.stdout
 /opa-eval.stderr
 /verdict.json
+
+# Python bytecode / cache artifacts
+__pycache__/
+*.py[cod]
+*$py.class
