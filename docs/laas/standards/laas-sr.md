@@ -175,7 +175,7 @@ Reserve Banks should distribute this letter to the supervised organizations in t
 and to appropriate supervisory and examination staff. Direct questions regarding this guidance
 to the Division of Supervision and Regulation.
 
-_[Signed]_
+*[Signed]*
 
 Director, Division of Supervision and Regulation
 
