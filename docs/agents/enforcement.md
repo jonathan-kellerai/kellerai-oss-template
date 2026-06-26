@@ -13,9 +13,11 @@ The workflow evaluates `data.kellerai.oss.conformance.violations` and formats
 the output as a table. `error` entries cause a non-zero exit code. `warning`
 entries are printed but do not fail the job.
 
-Sibling repos call the workflow via `uses:` pinned to a commit SHA. This means
-a policy change in `kellerai-oss-template` only takes effect in a sibling repo
-when the sibling explicitly bumps the SHA — preventing silent policy upgrades.
+Sibling repos call the workflow via `uses:` pinned to a commit SHA.
+The workflow checks out the matching `kellerai-oss-template` source at
+`${{ job.workflow_sha }}` — the SHA of the reusable-workflow file itself —
+so the policy evaluated always corresponds exactly to the version the
+caller pinned, preventing silent policy upgrades.
 
 ### Workflow change history
 
@@ -53,7 +55,7 @@ repo, so a digest mismatch is caught before any consumer is affected.
 
 The `policy_integrity_manifest` rule fires if the `expected_digest` key is
 removed from `data.json` entirely — closing the bypass of deleting the field.
-Source: `conformance.rego:256-264`.
+Source: `conformance.rego:282-290`.
 
 ## CODEOWNERS lock
 

@@ -47,11 +47,15 @@ The bundled example is a **CT4 external transfer the gate blocked** (verifier ab
 conformant via the block path (`compliant: true`). Flip `"bundle_signed": true` to `false` in the
 input and re-run to see `LAAS-OBL-ENF-001` fire and `compliant` drop to `false`.
 
-## CI wiring (proposed)
+## CI wiring (partial — `opa test` not yet run in CI)
 
-A reusable workflow mirroring `.github/workflows/conformance.yml` runs `opa test` on this
-directory and `opa eval` against a stream/sample of decision records. `error`-severity
-violations block; `warning`-severity are reported. Pin to a commit SHA, not a branch.
+A reusable workflow mirroring `.github/workflows/conformance.yml` runs `opa check` and
+`opa eval` over `standard/conformance/` (both steps recurse into subdirectories, so
+`conformance/laas/` is included).
+The `laas_test.rego` unit-test suite is **not** executed by CI as of the current workflow
+— the workflow contains no `opa test` step.
+To run the tests locally: `opa test conformance/` from the repo root.
+Pin consumer workflows to a commit SHA, not a branch.
 
 > Verified on OPA 1.17.1. The conformance predicate references only declared trace fields, so it
 > is mechanically evaluable — see `standard/LAAS.md` §5.
