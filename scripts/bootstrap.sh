@@ -223,9 +223,15 @@ done < <(find "$work" -depth -type f -name '*{{*}}*' -print0)
 # License body (verbatim; never tokenized).
 cp "$licenses_src/$license.txt" "$work/LICENSE"
 
-# Artifact directory + conformance marker.
+# Artifact directory + conformance marker. Only stamp the .gitkeep placeholder
+# when the artifact dir is otherwise empty. A populated artifact dir (e.g. a
+# rego-policy tree carrying real policy files from template/_files/) needs no
+# placeholder, and stamping one would leave a file uncovered by affects.json that
+# fails the affects_manifest_complete self-check on every fresh scaffold.
 mkdir -p "$work/$artifact_dir"
-: >"$work/$artifact_dir/.gitkeep"
+if [ -z "$(ls -A "$work/$artifact_dir" 2>/dev/null || true)" ]; then
+	: >"$work/$artifact_dir/.gitkeep"
+fi
 
 cat >"$work/.kellerai-oss.json" <<JSON
 {

@@ -32,6 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   block-path, and an unsigned-input INP-001 block), and the runnable proof
   `scripts/laas/osi_check.sh` (exits non-zero if `opa` is absent).
 
+### Fixed
+
+- `scripts/bootstrap.sh`: no longer stamps a redundant `conformance/.gitkeep`
+  placeholder into an already-populated artifact dir. The unconditional marker
+  left a file uncovered by `conformance/affects.json` in pulse scope, so every
+  fresh `rego-policy` scaffold failed the `affects_manifest_complete` conformance
+  self-check and aborted before publishing to `--out`. The placeholder is now
+  written only when the artifact dir is otherwise empty (so empty-dir artifact
+  types such as `json-schema`/`markdown-spec`/`rag-config` still keep it).
+
 ## [3.2.0] - 2026-06-20
 
 ### Added
