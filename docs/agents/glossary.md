@@ -59,7 +59,7 @@ The `.github/workflows/conformance.yml` file in this repo, declared with
 The workflow checks out both the caller's repo and this repo, runs
 `scan-repo-structure.sh`, and evaluates the policy. Callers pin to a commit
 SHA, not a branch.
-Source: plan-how-to-create-peppy-bunny.md §1c.
+Source: `.github/workflows/conformance.yml:1-10`, `docs/adoption-guide.md:98-106`.
 
 ## Sanitization
 
@@ -89,7 +89,7 @@ non-blocking. Source: `conformance.rego:275-278`.
 bootstrap scaffold generates. Both `conformance.rego` and `scripts/bootstrap.sh`
 read from it. A change to required files or artifact types must be made in
 `data.json`; the policy and the bootstrap then reflect it automatically.
-Source: `conformance/data.json`, plan §1a.
+Source: `conformance/data.json`, `scripts/bootstrap.sh:86-97`.
 
 ## Structural drift
 

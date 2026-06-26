@@ -1,9 +1,10 @@
 # LLM-Agent Assurance Standard (LAAS)
 
-**Status:** Draft v1.1 · **Artifact type:** `markdown-spec` (normative) + `rego-policy` (enforcing)
-**Machine source of truth:** [`conformance/laas/data.json`](../conformance/laas/data.json)
-**Enforcing policy:** [`conformance/laas/laas.rego`](../conformance/laas/laas.rego) — package `kellerai.laas.actions`
-**Rationale / design record:** `docs/laas/proposal-v1.1.md`
+- **Status:** Draft v1.1
+- **Artifact type:** `markdown-spec` (normative) + `rego-policy` (enforcing)
+- **Machine source of truth:** [`conformance/laas/data.json`](../conformance/laas/data.json)
+- **Enforcing policy:** [`conformance/laas/laas.rego`](../conformance/laas/laas.rego) — package `kellerai.laas.actions`
+- **Rationale / design record:** `docs/laas/proposal-v1.1.md`
 
 > Like `OSS-PUBLICATION-STANDARD.md`, this prose is the canonical reference and `data.json`
 > is derived from it. Where this document and `data.json` disagree, that is a bug: open a

@@ -19,6 +19,12 @@ This is the Tier-1 entry point. For deeper detail, load files under `docs/agents
 - A **bootstrap script** (`scripts/bootstrap.sh`) that generates a conformant repo tree from
   `template/_files/` using token substitution.
 - The **prose publication standard** (`standard/OSS-PUBLICATION-STANDARD.md`).
+- A **trust-dial verdict policy** (`conformance/trust_dial.rego`) that gates merges on a
+  tier-based trust score; state and decision trace land in `audit/`.
+- A **blast-radius pulse policy** (`conformance/blast_radius.rego`) that asserts every in-scope
+  file is reachable from `conformance/affects.json`.
+- A **LaaS conformance policy** (`conformance/laas/`) — machine-checkable rules for the
+  LaaS proposal; prose and standards renderings in `docs/laas/`.
 - Licensed **Apache-2.0** — see `LICENSE` and `NOTICE`.
 - Artifact type: `rego-policy`. Owner: `jonathan-kellerai`.
 
@@ -28,7 +34,8 @@ This is the Tier-1 entry point. For deeper detail, load files under `docs/agents
 - The **bootstrap script generates files only** — it does not `git init`, commit, or push.
 - The **reusable workflow** is the CI integration point; it is not a standalone tool.
 - Consumer repos that call the centralized workflow do **not** vendor `conformance.rego` —
-  the workflow checks out this repo at a pinned SHA and runs the policy from here.
+  the workflow checks out this repo at `${{ job.workflow_sha }}` (the pinned reusable-workflow
+  commit SHA) and runs the policy from here.
 
 ## File layout — agent reading order
 
@@ -42,6 +49,11 @@ Load the file that answers your question.
 | The manifest (required files, content assertions) | `conformance/data.json` |
 | The Rego policy source | `conformance/conformance.rego` |
 | The policy test suite | `conformance/conformance_test.rego` |
+| Trust-dial verdict policy + data | `conformance/trust_dial.rego`, `conformance/trust_dial_data.json` |
+| Blast-radius pulse policy + manifest | `conformance/blast_radius.rego`, `conformance/affects.json` |
+| LaaS conformance policy | `conformance/laas/laas.rego`, `conformance/laas/README.md` |
+| LaaS prose and standards renderings | `standard/LAAS.md`, `docs/laas/` |
+| Branch governance rules | `docs/branch-governance.md` |
 | How to adopt conformance in an existing repo | `docs/adoption-guide.md` |
 | What a term means | `docs/agents/glossary.md` |
 | Commit / branch / PR conventions (full detail) | `docs/agents/conventions.md` |
@@ -50,15 +62,19 @@ Load the file that answers your question.
 
 Key source paths:
 
-- `conformance/conformance.rego` — 291 lines; `deny` families: required files/dirs/github-files/
-  agent-docs/scripts, artifact type, AGENTS.md length, CLAUDE.md length + first line,
-  README footer, `.gitignore` coverage, forbidden branch, primary validator wired, policy integrity.
+- `conformance/conformance.rego` — 376 lines; `deny` families: `data_sentinel`, `required_file`,
+  `required_dir`, `required_github_file`, `required_agent_doc`, `required_script`,
+  `artifact_type_known`, `artifact_dir`, `agents_md_length`, `claude_md_length`,
+  `claude_md_import`, `readme_agent_footer`, `gitignore_coverage`, `forbidden_branch`,
+  `primary_validator_wired`, `trust_dial_wired`, `policy_integrity`, `policy_integrity_manifest`,
+  `affects_manifest_complete`.
 - `conformance/data.json` — drives both the policy and `bootstrap.sh`; edit here to add a rule.
 - `scripts/scan-repo-structure.sh` — emits `repo-structure.json` (input to `opa eval`); reads
   tracked files via `git ls-files`, captures `file_meta` for `AGENTS.md`/`CLAUDE.md`/`README.md`/
   `.gitignore`, branch list, CI `uses:` lines, and the `conformance.rego` SHA-256 digest.
 - `scripts/bootstrap.sh` — flags: `--name`, `--artifact-type`, `--license`, `--noun`, `--out`
-  (required); `--validator`, `--artifact-dir`, `--owner`, `--author`, `--description` (optional).
+  (required); `--validator`, `--artifact-dir`, `--owner`, `--author`, `--description`, `--force`
+  (optional).
 
 ## Conventions agents MUST follow
 
@@ -87,8 +103,9 @@ Full conventions, edge cases, and examples: `docs/agents/conventions.md`.
 Surface these when proposing amendments — do not silently assume an answer.
 
 1. **`outcome_signal` equivalence for policy violations.** The conformance workflow maps
-   `error`-severity to CI failure and `warning` to a report — but there is no formal mapping to
-   an ELO or KoTH signal for inter-session attribution.
+   `error`-severity to CI failure and `warning` to a report. Trust-dial now provides a
+   decision-trace (`audit/decision-trace.jsonl`) for per-merge attribution, but a formal
+   ELO/KoTH signal mapping for inter-session scoring remains unresolved.
 2. **Multi-tenant repos.** The policy has no `tenant_id` concept; the rules assume a single-owner
    repo. Multi-tenant scenarios are out of scope for v0.1.
 

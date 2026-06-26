@@ -11,12 +11,13 @@ The notes below are specific to Claude Code sessions.
 
   ```bash
   opa check conformance/                   # syntax + type check
-  opa test conformance/                    # run the test suite
+  opa test conformance/                    # run the test suite (recurses into conformance/laas/)
   opa eval -d conformance/ -i repo-structure.json \
     'data.kellerai.oss.conformance.summary'  # evaluate a snapshot
   ```
 
-  Generate the snapshot first with `bash scripts/scan-repo-structure.sh`.
+  Generate the snapshot first with `bash scripts/scan-repo-structure.sh > repo-structure.json`
+  (the script writes the JSON to stdout; redirect it to the file `opa eval -i` reads).
 
 - **Policy integrity.** After editing `conformance/conformance.rego`, recompute the
   SHA-256 digest and update `conformance/data.json` `policy_integrity.expected_digest`
