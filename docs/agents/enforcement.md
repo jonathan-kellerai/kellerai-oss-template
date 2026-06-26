@@ -13,9 +13,11 @@ The workflow evaluates `data.kellerai.oss.conformance.violations` and formats
 the output as a table. `error` entries cause a non-zero exit code. `warning`
 entries are printed but do not fail the job.
 
-Sibling repos call the workflow via `uses:` pinned to a commit SHA. This means
-a policy change in `kellerai-oss-template` only takes effect in a sibling repo
-when the sibling explicitly bumps the SHA — preventing silent policy upgrades.
+Sibling repos call the workflow via `uses:` pinned to a commit SHA.
+The workflow checks out the matching `kellerai-oss-template` source at
+`${{ job.workflow_sha }}` — the SHA of the reusable-workflow file itself —
+so the policy evaluated always corresponds exactly to the version the
+caller pinned, preventing silent policy upgrades.
 
 ### Workflow change history
 
@@ -53,7 +55,7 @@ repo, so a digest mismatch is caught before any consumer is affected.
 
 The `policy_integrity_manifest` rule fires if the `expected_digest` key is
 removed from `data.json` entirely — closing the bypass of deleting the field.
-Source: `conformance.rego:256-264`.
+Source: `conformance.rego:282-290`.
 
 ## CODEOWNERS lock
 
@@ -228,6 +230,21 @@ The `violations` set carries the full obligation ID, severity, and a
 diagnostic message for each firing rule.
 These surfaces are the canonical inputs to any downstream decision log or
 append-only trace required by `LAAS-OBL-TRC-001`.
+
+### Proof scripts — LaaS action-conformance (`scripts/laas/`)
+
+The LaaS action-conformance policy ships a decision-record emitter and runnable
+proofs under `scripts/laas/`. Each is invoked directly with `python3` or `bash`;
+none are wired into a git hook, so contributors run them on demand.
+
+| Script | Invocation | Purpose |
+|--------|------------|---------|
+| `scripts/laas/emitter.py` | `python3 scripts/laas/emitter.py -i <effect-surface.json> -b conformance/laas/data.json -o <out.json>` | Emit a gate-derived decision record from an effect surface. |
+| `scripts/laas/check.sh` | `bash scripts/laas/check.sh` | Emit a sample decision record and (if `opa` is present) evaluate it against `package kellerai.laas.actions`; skips the eval when `opa` is absent. |
+| `scripts/laas/osi_to_surface.py` | `python3 scripts/laas/osi_to_surface.py -m <model.json> --kind dataset --name <name> --operation write` (axes: `read`/`write`/`delete`; add `--unsigned` for an untrusted model) | OSI (Open Semantic Interchange) → LaaS adapter: build an effect surface from an annotated OSI model and emit a decision record via the canonical emitter — no tier math lives in the adapter. |
+| `scripts/laas/osi_check.sh` | `bash scripts/laas/osi_check.sh` | OSI model → adapter → decision record → `opa eval` proof, asserting the CT4 `net_settlement_amount` write is compliant under full enforcement controls. Exits non-zero if `opa` is absent. |
+
+`scripts/laas/test_osi_to_surface.py` is the stdlib unittest for the OSI adapter; run the suite with `python3 -m unittest discover scripts/laas`.
 
 ## The blast-radius pulse
 

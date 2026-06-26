@@ -2,7 +2,9 @@
 
 A conformance authority and bootstrap scaffold for the kellerai family of open-source repositories.
 
-**License:** Apache-2.0 &nbsp;|&nbsp; **Owner:** jonathan-kellerai &nbsp;|&nbsp; **Artifact type:** rego-policy
+- **License:** Apache-2.0
+- **Owner:** jonathan-kellerai
+- **Artifact type:** rego-policy
 
 ---
 
@@ -95,11 +97,25 @@ conformance/
   conformance_test.rego     — opa test suite
   data.json                 — single source of truth: required files, dirs, content assertions
   README.md                 — conformance system quick reference
+  affects.json              — blast-radius scope manifest
+  blast_radius.rego         — blast-radius policy
+  blast_radius_test.rego    — blast-radius test suite
+  trust_dial.rego           — trust-dial verdict policy
+  trust_dial_data.json      — trust-dial configuration data
+  trust_dial_test.rego      — trust-dial test suite
+  laas/
+    laas.rego               — LaaS (Liability-as-a-Service) policy
+    laas_test.rego          — LaaS test suite
+    data.json               — LaaS manifest
+    README.md               — LaaS quick reference
 
 scripts/
   bootstrap.sh              — scaffold a new repo from template/
   scan-repo-structure.sh    — emit repo-structure.json for opa eval
   check-sanitization.sh     — fail if tracked files contain internal-only terms
+  pulse.sh                  — blast-radius pulse runner
+  publish.sh                — publication helper
+  laas/                     — LaaS helper scripts and emitter
 
 template/
   _files/                   — tokenized publishable tree (README, AGENTS, CLAUDE, .github/, etc.)
@@ -108,11 +124,22 @@ template/
 
 standard/
   OSS-PUBLICATION-STANDARD.md   — the prose publication standard (canonical)
+  LAAS.md                       — LaaS specification
+
+audit/
+  trust-dial-state.json     — current trust-dial tier state
+  decision-trace.jsonl      — trust-dial decision audit trail
+  blast-radius.jsonl        — blast-radius pulse trace
 
 docs/
   index.md                  — documentation home
   conformance-policy.md     — policy rule reference
   adoption-guide.md         — step-by-step adoption for existing repos
+  branch-governance.md      — branch-tier governance rules and escalation paths
+  adr/
+    ADR-001-trust-dial-dependabot.md
+    ADR-002-blast-radius-pulse.md
+  laas/                     — LaaS documentation, proposals, and standard renderings
   agents/
     conventions.md          — Conventional Commits, branch naming, PR style (Tier-2)
     citation.md             — how to cite this repo (Apache-2.0, BibTeX, CITATION.cff)
@@ -125,6 +152,13 @@ docs/
     ci.yml                  — this repo's own CI
     commitlint.yml
     pages.yml
+    trust-dial-gate.yml     — trust-dial gate and outcome workflows
+    trust-dial-outcome.yml
+    blast-radius-pulse.yml  — blast-radius pulse and outcome workflows
+    blast-radius-outcome.yml
+    validate-branch-name.yml
+    validate-branch-tier.yml
+    validate-linked-issue.yml
   ISSUE_TEMPLATE/           — four structured forms (policy-bug, clarification, amendment, integration)
   CODEOWNERS
   dependabot.yml
@@ -142,7 +176,7 @@ docs/
 
 ---
 
-### For agents
+## For agents
 
 Agents reading this repository should start at [AGENTS.md](AGENTS.md), not this README.
 Claude Code users: see [CLAUDE.md](CLAUDE.md), which imports `AGENTS.md`.

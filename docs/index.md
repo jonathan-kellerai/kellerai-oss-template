@@ -12,6 +12,8 @@ and reusable conformance workflow for the kellerai OSS family.
 |------|----------|----------------|
 | [`conformance-policy.md`](conformance-policy.md) | All | Complete catalog of every rule in `conformance/conformance.rego`: rule id, severity, trigger, fix. Also documents the four artifact types, the surface rules, and the `data.json` manifest structure. |
 | [`adoption-guide.md`](adoption-guide.md) | Sibling repo maintainers | Step-by-step: add `.kellerai-oss.json`, wire the reusable `conformance` job into CI, run the check locally. |
+| [`branch-governance.md`](branch-governance.md) | All | Tier-2 detail: 4-tier branch model, external contributor naming, gate workflow configuration, and GitHub Rulesets setup. |
+| [`laas/proposal-v1.1.md`](laas/proposal-v1.1.md) | All | LaaS (LLM-Agent Assurance Standard) proposal v1.1 — prose renderings and supporting standards (IEEE, NIST, ISO, SR) live under `docs/laas/`. |
 
 ## Agent Tier-2 references — `docs/agents/`
 

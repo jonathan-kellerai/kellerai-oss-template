@@ -14,7 +14,26 @@ same source of truth, `data.json`.
 - **`conformance.rego`** — package `kellerai.oss.conformance`. Consumes a
   `repo-structure.json` snapshot as `input` and `data.json` as `data`, and emits
   a structured `deny` set.
-- **`conformance_test.rego`** — the `opa test` suite.
+- **`conformance_test.rego`** — the `opa test` suite for `conformance.rego`.
+- **`affects.json`** — dependency-impact manifest; maps source paths to the
+  downstream conformance rules they affect, used by tooling to scope re-checks.
+- **`trust_dial.rego`** — package `kellerai.oss.trust_dial`. Evaluates a repo's
+  trust level (CT1–CT5) from its conformance profile.
+- **`trust_dial_data.json`** — threshold table and weight configuration consumed
+  by `trust_dial.rego`.
+- **`trust_dial_test.rego`** — the `opa test` suite for `trust_dial.rego`.
+- **`blast_radius.rego`** — package `kellerai.oss.blast_radius`. Computes a
+  change-blast-radius pulse score from a repo snapshot.
+- **`blast_radius_test.rego`** — the `opa test` suite for `blast_radius.rego`.
+- **`laas/`** — Liability-as-a-Service sub-policy. Contains:
+  - **`laas/laas.rego`** — package `kellerai.oss.laas`. Evaluates liability
+    exposure from conformance violations.
+  - **`laas/data.json`** — scoring weights and threshold configuration consumed
+    by `laas.rego`.
+  - **`laas/laas_test.rego`** — the `opa test` suite for `laas.rego`.
+  - **`laas/README.md`** — prose overview of the LaaS sub-policy.
+  - **`laas/examples/action.ct4-blocked.json`** — example input fixture showing
+    a CT4-blocked action evaluation.
 
 ## Violation shape
 

@@ -242,3 +242,100 @@ test_fail_untrusted_input_low_ct if {
 	ids := error_ids with input as inp with data.laas as _cfg
 	"LAAS-OBL-INP-001" in ids
 }
+
+# --------------------------------------------------------------------------- #
+# OSI adapter golden cases (scripts/laas/osi_to_surface.py, finding: OSI->LaaS)
+#
+# _osi_ct4 is the VERBATIM output of:
+#   python3 scripts/laas/osi_to_surface.py -m scripts/laas/osi/example.semantic.json \
+#     --kind metric --name net_settlement_amount --operation write --signed
+# (a CT4 net_settlement_amount write). Regenerate with that command if the
+# adapter or the example model changes.
+# --------------------------------------------------------------------------- #
+
+_osi_ct4 := {
+	"action": {
+		"id": "act_unknown",
+		"actor_id": "agent.osi.demo",
+		"actor_model_lineage": "osi-demo-lineage",
+		"self_reported_ct": 4,
+		"effect_surface": {
+			"external_effect": true,
+			"tool": "osi.metric.write:net_settlement_amount",
+			"reversibility": "irreversible",
+			"scope": "org",
+			"consequence": "high",
+		},
+	},
+	"gate": {"assigned_ct": 4, "bundle_version": "laas-fin-1.1.0", "bundle_signed": true, "out_of_process": true},
+	"aggregate": {"window_effect_ct": 0},
+	"human_approval": {"approved": false},
+	"vendor": {"used": false, "attribution": null, "scope_limited": false},
+	"input": {"trusted": true},
+	"trace": {"append_only": true, "actor_chain_prev_hash": null, "merkle_anchor": null},
+	"residual_error_bound": null,
+	"action_blocked": false,
+	"escalation_approved": false,
+	"verifier": {"id": "VRF-OSI-DET", "type": "deterministic", "model_lineage": "n/a", "qualified": true, "verdict": "pass"},
+}
+
+# CT4 write, full enforcement controls (human approval + append-only trace anchors) -> compliant.
+test_osi_ct4_full_controls_compliant if {
+	inp := json.patch(_osi_ct4, [
+		{"op": "replace", "path": "/human_approval/approved", "value": true},
+		{"op": "replace", "path": "/trace", "value": {"append_only": true, "actor_chain_prev_hash": "sha256:osi", "merkle_anchor": "sha256:osi"}},
+	])
+	s := summary with input as inp with data.laas as _cfg
+	s.expected_ct == 4
+	s.compliant == true
+	s.errors == 0
+}
+
+# CT4 write committed (not blocked), enforcement controls absent -> non-compliant (HUM-001).
+test_osi_ct4_controls_absent_committed_noncompliant if {
+	ids := error_ids with input as _osi_ct4 with data.laas as _cfg
+	"LAAS-OBL-HUM-001" in ids
+	not compliant with input as _osi_ct4 with data.laas as _cfg
+}
+
+# CT4 write blocked -> compliant via the block path.
+test_osi_ct4_blocked_compliant if {
+	inp := json.patch(_osi_ct4, [{"op": "replace", "path": "/action_blocked", "value": true}])
+	compliant with input as inp with data.laas as _cfg
+}
+
+# Unsigned OSI model / untrusted input: INP-001 drives a block when the untrusted
+# action is low-CT and not blocked; blocking clears it. Asserts the rego behavior,
+# NOT a derive_ct CT change. (The adapter's unsigned floor sets
+# window_effect_ct=untrusted_input_min_ct so a real unsigned action is raised to
+# >=CT3 and satisfies INP-001's ct>=3 floor; here we exhibit the underlying block.)
+_osi_untrusted_lowct := {
+	"action": {
+		"id": "act_unknown",
+		"actor_id": "agent.osi.demo",
+		"actor_model_lineage": "osi-demo-lineage",
+		"self_reported_ct": 1,
+		"effect_surface": {"external_effect": true, "tool": "osi.dataset.write:customers", "reversibility": "reversible", "scope": "single", "consequence": "low"},
+	},
+	"gate": {"assigned_ct": 1, "bundle_version": "laas-fin-1.1.0", "bundle_signed": true, "out_of_process": true},
+	"aggregate": {"window_effect_ct": 1},
+	"human_approval": {"approved": true},
+	"vendor": {"used": false, "attribution": null, "scope_limited": false},
+	"input": {"trusted": false},
+	"trace": {"append_only": true, "actor_chain_prev_hash": "h", "merkle_anchor": "m"},
+	"residual_error_bound": null,
+	"action_blocked": false,
+	"escalation_approved": false,
+	"verifier": {"id": "VRF-OSI-DET", "type": "deterministic", "model_lineage": "n/a", "qualified": true, "verdict": "pass"},
+}
+
+test_osi_unsigned_inp001_block if {
+	# untrusted + low CT + not blocked -> INP-001 fires.
+	ids := error_ids with input as _osi_untrusted_lowct with data.laas as _cfg
+	"LAAS-OBL-INP-001" in ids
+	not compliant with input as _osi_untrusted_lowct with data.laas as _cfg
+
+	# blocking clears the violation -> compliant via the block path.
+	blocked := json.patch(_osi_untrusted_lowct, [{"op": "replace", "path": "/action_blocked", "value": true}])
+	compliant with input as blocked with data.laas as _cfg
+}

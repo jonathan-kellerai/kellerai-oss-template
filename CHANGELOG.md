@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- OSI (Open Semantic Interchange) → LaaS adapter `scripts/laas/osi_to_surface.py`:
+  `build_surface` maps an OSI model + action reference to a gate-observed
+  `EffectSurface` (cycle-safe blast-radius traversal taking the most-severe rank
+  on all three axes, read/write/delete operation floors, and access-sensitive
+  scope coercion), and `osi_emit_decision_record` emits a decision record via the
+  canonical `emit_decision_record` (unsigned models floor `assigned_ct` to
+  `untrusted_input_min_ct` through the aggregate window). No tier math lives in
+  the adapter — reversibility/scope/consequence ranks are loaded from
+  `data["laas"]["tier_lattice"]`.
+- KELLERAI_LAAS OSI custom_extension JSON Schema (draft 2020-12) and a worked
+  example model under `scripts/laas/osi/`:
+  `kellerai_laas_extension.schema.json`, `example.semantic.yaml`, and its
+  `example.semantic.json` twin (the twin keeps the core converter stdlib-only;
+  PyYAML is a CLI-only optional dependency). These live under `scripts/laas/`
+  rather than `conformance/laas/` so the recursive `opa test conformance/` load
+  does not treat them as conflicting data documents.
+- Tests and proof: `scripts/laas/test_osi_to_surface.py` (stdlib unittest —
+  converter fixtures asserting `converter CT == derive_ct`, signed/unsigned trust
+  floor, and a schema-vs-lattice enum drift check), OSI golden cases appended to
+  `conformance/laas/laas_test.rego` (CT4 write compliant / non-compliant /
+  block-path, and an unsigned-input INP-001 block), and the runnable proof
+  `scripts/laas/osi_check.sh` (exits non-zero if `opa` is absent).
+
+### Fixed
+
+- `scripts/bootstrap.sh`: no longer stamps a redundant `conformance/.gitkeep`
+  placeholder into an already-populated artifact dir. The unconditional marker
+  left a file uncovered by `conformance/affects.json` in pulse scope, so every
+  fresh `rego-policy` scaffold failed the `affects_manifest_complete` conformance
+  self-check and aborted before publishing to `--out`. The placeholder is now
+  written only when the artifact dir is otherwise empty (so empty-dir artifact
+  types such as `json-schema`/`markdown-spec`/`rag-config` still keep it).
+- Documentation audit: corrected stale and inaccurate prose across nine files.
+  - `AGENTS.md`: updated `conformance.rego` line count (291 → 376) and added the
+    five previously-undocumented `deny` families (`data_sentinel`, `artifact_dir`,
+    `trust_dial_wired`, `policy_integrity_manifest`, `affects_manifest_complete`)
+    to the key-source-paths summary.
+  - `README.md`, `AGENTS.md`, `conformance/README.md`: documented the trust-dial,
+    blast-radius, and LaaS subsystems that were absent from the prose overviews.
+  - `CLAUDE.md`: fixed broken verification recipe — `scan-repo-structure.sh` now
+    correctly shows output redirected to `repo-structure.json` (`bash
+    scripts/scan-repo-structure.sh` → `repo-structure.json`).
+  - `docs/agents/glossary.md`: removed reference to
+    `plan-how-to-create-peppy-bunny.md`, a gitignored staging file that must
+    never appear in published documentation.
+  - `docs/agents/enforcement.md`: corrected a stale policy line-number citation
+    that pointed at a line no longer present after the LaaS families were added.
+
 ## [3.2.0] - 2026-06-20
 
 ### Added
