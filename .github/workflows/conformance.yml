@@ -41,7 +41,7 @@ jobs:
       #    scan-repo-structure.sh can enumerate branches via git for-each-ref.
       # -----------------------------------------------------------------------
       - name: Checkout caller repo
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
           path: repo
@@ -52,7 +52,7 @@ jobs:
       #      standard/scripts/scan-repo-structure.sh
       # -----------------------------------------------------------------------
       - name: Checkout kellerai-oss-template (standard)
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: jonathan-kellerai/kellerai-oss-template
           # job.workflow_sha is the commit SHA of the reusable-workflow file itself
